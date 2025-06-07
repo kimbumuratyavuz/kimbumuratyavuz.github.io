@@ -1,0 +1,997 @@
+
+<link rel="icon" type="image/png" href="https://i.hizliresim.com/o9u133m.png">
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HJQP2H54XE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-HJQP2H54XE');
+</script>
+
+
+
+
+
+<script>
+  // Sağ tıklamayı engelleme
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    
+  });
+
+</script>
+
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SPORTV - Murat Yavuz</title>
+  <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: #111;
+      color: white;
+      overflow-y: auto;
+      transition: all 0.3s ease;
+      padding: 20px 10px;
+      position: relative;
+      border-right: 2.5px solid rgba(128, 128, 128, 0.85);
+    }
+
+    .sidebar.closed {
+      width: 0;
+      overflow: hidden;
+      padding: 0;
+      border-right: 2.5px solid rgba(128, 128, 128, 0.3);
+    }
+
+    .content {
+      flex-grow: 1;
+      height: 100%;
+      transition: all 0.3s ease;
+      position: relative;
+      background: black;
+    }
+
+    .video-js {
+      width: 100%;
+      height: 100%;
+    }
+
+    .toggle-button {
+      position: absolute;
+      top: 50%;
+      left: 260px;
+      transform: translateY(-50%);
+      background: #2f2f2f;
+      border: 3px solid rgba(128, 128, 128, 0.9);
+      color: rgba(200, 200, 200, 0.95);
+      font-weight: 900;
+      font-size: 24px;
+      padding: 14px 16px;
+      cursor: pointer;
+      z-index: 20;
+      border-radius: 0 12px 12px 0;
+      box-shadow: none;
+      transition: left 0.3s ease, transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      width: 48px;
+      height: 64px;
+      overflow: visible;
+    }
+
+    .toggle-button:hover {
+      border-color: #c0c0c0;
+      color: #e0e0e0;
+      background: #454545;
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .toggle-button:active {
+      transform: translateY(-50%) scale(0.95);
+      border-color: rgba(128, 128, 128, 0.9);
+      color: rgba(200, 200, 200, 0.95);
+      background: #2f2f2f;
+    }
+
+    .sidebar.closed + .toggle-button {
+      left: 0;
+      border-radius: 0 0 12px 0;
+    }
+
+    .search-box {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      background-color: #222;
+      color: #fff;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 15px;
+      justify-content: space-between;
+    }
+
+    .action-buttons button {
+      flex: 1;
+      background-color: #333;
+      color: #ccc;
+      border: 2px solid #808080;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+      user-select: none;
+    }
+
+    .action-buttons button:hover {
+      background-color: #555;
+      border-color: #bbb;
+      color: #fff;
+    }
+
+    .action-buttons button svg {
+      width: 18px;
+      height: 18px;
+      fill: #ccc;
+      transition: fill 0.25s ease;
+    }
+
+    .action-buttons button:hover svg {
+      fill: #fff;
+    }
+
+    .category {
+      margin-bottom: 20px;
+    }
+
+    .category h3 {
+      font-size: 16px;
+      color: #facc15;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 4px;
+      font-weight: 700;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .channel-button {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      background: #1f1f1f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s;
+      font-weight: 600;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      letter-spacing: 0.02em;
+      position: relative;
+      user-select: none;
+    }
+
+    .channel-button:hover {
+      background: #333;
+    }
+
+    .live-badge {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      user-select: none;
+      pointer-events: none;
+      letter-spacing: 0.03em;
+    }
+
+    /* Bilgilendirme tam ekran modal */
+    .info-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      color: #eee;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 9999;
+      text-align: center;
+      font-size: 1.3rem;
+      line-height: 1.5;
+    }
+
+    .info-modal.active {
+      display: flex;
+    }
+
+    .info-modal button.close-info {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: 2px solid #ccc;
+      color: #ccc;
+      font-size: 24px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .info-modal button.close-info:hover {
+      background-color: #ccc;
+      color: #222;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="sidebar" id="sidebar">
+
+    <div class="search-box">
+      <input type="text" placeholder="Kanal ara..." oninput="filterChannels(this.value)">
+    </div>
+
+
+    <!-- Kategori ve Kanallar -->
+
+
+ <div class="category" data-category="spor">
+      <h3>⚽ Spor</h3>
+      
+      <button class="channel-button" data-src="https://deneme123.parisiptv1.workers.dev/Bein-Sport-1-FHD/tracks-v1a1/mono.m3u8">
+        beIN Sports 1  <span class="live-badge">CANLI</span>
+      </button>
+     
+      <button class="channel-button" data-src="http://origi-jw-5.ravenclaw-house.com:80/TR-BEINSPORT1/tracks-v1a1/mono.m3u8">
+        beIN Sports 1<span class="live-badge">VPN GEREKİR</span>
+      </button>
+       <button class="channel-button" data-src="https://deneme123.parisiptv1.workers.dev/Bein-Sport-2-FHD/tracks-v1a1/mono.m3u8">
+        beIN Sports 2  <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/bein-sports-3.css&bas=https://nxn4.xyz/cdn/">
+        beIN Sports 3 <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/bein-sports-4.css&bas=https://nxn4.xyz/cdn/">
+        beIN Sports 4 <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ottcdn.kablowebtv.net/live_turksat_sub3/beinsportshaber_stream/tracks-a1/mono.ts.m3u8?nimblesessionid=339919249&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+        beIN Sports Haber<span class="live-badge">CANLI</span>
+      </button>
+      
+     <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/s-sport.css&bas=https://nxn4.xyz/cdn/">
+        S Sport <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/s-sport-2.css&bas=https://nxn4.xyz/cdn/">
+        S Sport 2 <span class="live-badge">CANLI</span>
+       </button>
+
+       <button class="channel-button" data-src="https://tv-trtspor1.medya.trt.com.tr/master_720.m3u8">
+        TRT Spor <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/spor-smart.css&bas=https://nxn4.xyz/cdn/">
+     Spor Smart <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/spor-smart-2.css&bas=https://nxn4.xyz/cdn/">
+     Spor Smart 2 <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/tivibu-spor.css&bas=https://nxn4.xyz/cdn/">
+     Tivibu Spor<span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/tivibu-spor-2.css&bas=https://nxn4.xyz/cdn/">
+     Tivibu Spor 2 <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://p2zgpjpzhpu30th994bn1bknnekjv0.top/cek2.m3u8?u=https://nxn4.xyz/cdn/tivibu-spor-3.css&bas=https://nxn4.xyz/cdn/">
+     Tivibu Spor 3<span class="live-badge">CANLI</span>
+       </button>
+        <button class="channel-button" data-src="https://td3wb1bchdvsahp.ngolpdkyoctjcddxshli469r.org/sunshine/IwEhmW4bqgy3bEEVzAaiRz26U5XXlIi0fChe01p0FqK984vGnPFmW-DGXXwO5lv3vlKgnNBYfE_gE1K1OepdyQiNeahM8881SLJp7xHwz2DiQqY86MS9GFp4NN0gkE40duJGtQKvyrK-CJDVDKZ6tNrdPwK6oOLTTRG3M1XcJiM/hls/index.m3u8">
+      Eurosport 1 <span class="live-badge">CANLI</span>
+       </button>
+        <button class="channel-button" data-src="https://td3wb1bchdvsahp.ngolpdkyoctjcddxshli469r.org/sunshine/eimuCz3ritAsQlFs0f-4SK62nVXXsSA3KTk9SWBrFWqhlfGk3YQrNkRKNn6TYegPcDEmBsEehcKuphqYT2N1H73UlXohQiDoYMmcAn-U5F7qwdfgNlfgIn8aPHwPBGJq0B5k0P0YDvzhs4J5ccmmMiryb_97HWaqLXZFvTjK6Sw/hls/index.m3u8">
+      Eurosport 2 <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://ciner-live.daioncdn.net/ht-spor/ht-spor_1080p.mname">
+      HT Spor <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://iezmzlrgtn5pgme.ngolpdkyoctjcddxshli469r.org/sunshine/rEl03Ei5Kl4V-2dtE-a075NDu__TlRXSy5tdbMRpcYJ23D_IUczViEiBslbj2SJH7GEiitE9T0KoGLYfW2NxZ0bqLB5wkl_6kstYXVkFgdKhElv3VaSkmlJcAvGUlsXriMmXAMqBMSmtgJe2sC72dnNACFhjk0gWw3Nd2MPTOzA/hls/index.m3u8">
+     SKY SPORTS PREMİER <span class="live-badge">VPN GEREKİR</span>
+       </button>
+        <button class="channel-button" data-src="https://rmtv.akamaized.net/hls/live/2043153/rmtv-es-web/bitrate_3.m3u8">
+     Real Madrid Tv<span class="live-badge">CANLI</span>
+       </button>
+        <button class="channel-button" data-src="https://iezmzlrgtn5pgme.ngolpdkyoctjcddxshli469r.org/sunshine/3GMj9XniYoZ7w57y2RNDp7us982h5HjwIuXrIJlSUIfUViAdGtcV5azr2RBKT1Z7vPopYITG1gtk6jq6qr1SchErQIXCWRa7nHASBf4obO-2r_CLcdQSFh74rtnZ7inAu7k3ptWZy2JwPt0MNkHyi7kPj24NBDSYJsL7QuNUjno/hls/index.m3u8">
+     Nba Tv<span class="live-badge">VPN GEREKİR</span>
+       </button>
+        <button class="channel-button" data-src="https://duhnet.hipodrom.com/S2/HLS_LIVE/mislitaynp/playlist.m3u8">
+   Tay Tv<span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://tv-trtspor2.medya.trt.com.tr/master_1080p.m3u8">
+    Trt Spor Yıldız<span class="live-badge">CANLI</span>
+       </button>
+        <button class="channel-button" data-src="https://live.sportstv.com.tr/hls/low/sportstv_hd/index.m3u8">
+    Sports Tv<span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://beert7sqimrk0bfdupfgn6qew.medya.trt.com.tr/master_1080p.m3u8">
+    Tabii Spor <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://beert7sqimrk0bfdupfgn6qew.medya.trt.com.tr/master_1080p.m3u8">
+    Tabii Spor 1 <span class="live-badge">CANLI</span>
+       </button>
+        <button class="channel-button" data-src="https://klublsslubcgyiz7zqt5bz8il.medya.trt.com.tr/master_1080p.m3u8">
+    Tabii Spor 2 <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://ujnf69op16x2fiiywxcnx41q8.medya.trt.com.tr/master_1080p.m3u8">
+    Tabii Spor 3 <span class="live-badge">CANLI</span>
+       </button>
+       <button class="channel-button" data-src="https://bfxy3jgeydpbphtk8qfqwm3hr.medya.trt.com.tr/master_1080p.m3u8">
+    Tabii Spor 4 <span class="live-badge">CANLI</span>
+       </button>
+      <button class="channel-button" data-src="https://9a81dd4ee3884d0dbcacafaf0d81327a.mediatailor.us-east-1.amazonaws.com/v1/master/04fd913bb278d8775298c26fdca9d9841f37601f/RakutenTV-eu_BilliardsTV/playlist.m3u8">
+   Bilardo TV<span class="live-badge">CANLI</span>
+       </button>
+      <button class="channel-button" data-src="https://bfxy3jgeydpbphtk8qfqwm3hr.medya.trt.com.tr/master_1080p.m3u8">
+    Tabii Spor 4 <span class="live-badge">CANLI</span>
+       </button>
+    </div>
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="category" data-category="sinema">
+      <h3>🎬 Sinema</h3>
+      <button class="channel-button" data-src="https://td3wb1bchdvsahp.ngolpdkyoctjcddxshli469r.org/sunshine/ok5KyyfTu9-khJYBKDw-qZW82buE6_vXEdRrGvXwfl-GMTuJOB1Ixyv5U47l9buJEW70paBxHgNvIekqxDhEEBZT9_stVQn7cQMmpgOH4G6md6R3zZ4fZpRWFeTKTXKC9Krb6VdnEszB67wdiOF5Ny5Ddp2iqBaP1PTFt3DD8k4/hls/index.m3u8">
+        Sinema TV <span class="live-badge">VPN GEREKİR</span>
+      </button>
+      <button class="channel-button" data-src="https://saran-live.ercdn.net/fx/index.m3u8">
+        FX <span class="live-badge">CANLI</span>
+      </button>
+    </div>
+    <button class="channel-button" data-src="https://qmaalhy7acgxwhm.ngolpdkyoctjcddxshli469r.org/sunshine/Sv31npqq9yqLfYoXu6KcuJGyDzK7JUZr7AjVC3RY79gyaSvPu7xKa-bcrMeK5wh7x7cq-8jdd-xffe3vQeif6ZxeM8Z2W-yWakBFY66PdlRzI1RwtosZN7NdJVOFJwcFxyZ-840P5a6-5YBKCM71jKhmt3DGTqClxutgFqNT6GI/hls/index.m3u8">
+        Dinamik Aksiyon<span class="live-badge">VPN GEREKİR</span>
+      </button>
+      <button class="channel-button" data-src="https://qmaalhy7acgxwhm.ngolpdkyoctjcddxshli469r.org/sunshine/JaMsfH4S6ICrZSjgSIN9208lOrmMexBI6YwYv5d5e8dC9UUKhX8TQfCvdSGaDQuJjw9jNl-QueOYoRM2Lk3PaXrd5bahMoOyHgpOhQuf6gS8oTCNSfidHL3nqUiuG4muc23eKSAEJywOT1kWANBnArdC1stweGqBTZqofz8NVLE/hls/index.m3u8">
+        Sinema Yerli<span class="live-badge">VPN GEREKİR</span>
+      </button>
+      <button class="channel-button" data-src="https://qmaalhy7acgxwhm.ngolpdkyoctjcddxshli469r.org/sunshine/5O6ce1-Lq8D9zlgT3W6vO1tf5OYbJAwwbxzIDknEZG292bLJqeIVSpCHeu1gZb9MLhWMdcSdH1wa5gupfSa2YPxBfPdcn_G1HzGS81uLQLvJk_KZJyyNZnxFwK72wvhswV-ZshJGTpweosrjEXVpivNoi1ytMhcXIlZxOtkSIwo/hls/index.m3u8">
+        Sinemax Drama<span class="live-badge">VPN GEREKİR</span>
+      </button>
+      <button class="channel-button" data-src="https://iezmzlrgtn5pgme.ngolpdkyoctjcddxshli469r.org/sunshine/s_i17YdKlC45uFHggjOymtqixOGX7fTX6pihAwsQuXTA7GDAe8GCX9xg8lAy2aG2zbBazehxLcH3DUH8J_p3GMKEahXfyQJxAFrseb58aGclO-cByrWq8S-7pQ1-8uoUIck8k1fNH6Vc01crtBrkUYFBpMqLmxMiceLPMRfyXso/hls/index.m3u8">
+        Sinema Komedi<span class="live-badge">VPN GEREKİR</span>
+      </button>
+      <button class="channel-button" data-src="http://canli.livecdn.com.tr:8880/live/MuratDenhag/evtest/12899.m3u8">
+       Pana Film<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ip100.radyotelekomtv.com:3784/stream/play.m3u8">
+        CİNEMA<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ceokzokgtd.erbvr.com/tabiitv/tabiitv.m3u8">
+        CİNEMA 2<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="http://canli.livecdn.com.tr:8880/live/MuratDenhag/evtest/31530.m3u8">
+        CİNEMA 3<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="http://canli.livecdn.com.tr:8880/live/MuratDenhag/evtest/28511.m3u8">
+        CİNEMA 4<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="http://canli.livecdn.com.tr:8880/live/MuratDenhag/evtest/44388.m3u8">
+        CİNEMA 5<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="http://canli.livecdn.com.tr:8880/live/MuratDenhag/evtest/13289.m3u8">
+        CİNEMA 6<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://host.onlineradyotv.net:8081/sdmtv/index.m3u8">
+        Sinema Keyfi<span class="live-badge">CANLI</span>
+      </button>
+
+
+    <div class="category" data-category="dizi">
+      <h3>📺 Ulusal</h3>
+      <button class="channel-button" data-src="https://tv-trt1.medya.trt.com.tr/master_1080.m3u8">
+        TRT 1 <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://trkvz.daioncdn.net/atv/atv_1080p.m3u8?e=1748976771&st=89JEWt0uwkOC8duxdFKeTA&sid=7gmt0j2mrzxa&app=d1ce2d40-5256-4550-b02e-e73c185a314e&ce=3">
+        ATV <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ciner-live.daioncdn.net/showtv/showtv_720p.m3u8">
+        Show TV <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://demiroren-live.daioncdn.net/kanald/kanald_1080p.m3u8">
+        Kanal D <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://dogus-live.daioncdn.net/startv/startv_720p.m3u8">
+        Star TV <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://kanal7-live.daioncdn.net/kanal7/kanal7_1080p.m3u8">
+        Kanal 7<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv_480p.m3u8">
+        NOW TV<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://tv8-live.daioncdn.net/tv8/tv8_1080p.m3u8">
+       TV 8<span class="live-badge">CANLI</span>
+        <button class="channel-button" data-src="https://tv8-live.daioncdn.net/tv8bucuk/tv8bucuk_1080p.m3u8">
+       TV 8.5<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://beyaztv-live.daioncdn.net/beyaztv/beyaztv_720p.m3u8">
+       Beyaz Tv<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://demiroren.daioncdn.net/teve2/teve2_720p.m3u8">
+       A2 TV<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://demiroren.daioncdn.net/teve2/teve2_720p.m3u8?&sid=7gjpsgjq0qqk&app=6aab838a-437e-4a1b-bbd0-e30f79cdbbbd&ce=3">
+       Teve 2<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://turkmedya-live.ercdn.net/tv360/tv360_1080p.m3u8">
+       360 TV<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://dogus-live.daioncdn.net/tlc/tlc_720p.m3u8">
+       TLC<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://dogus-live.daioncdn.net/dmax/dmax_720p.m3u8">
+       DMAX TV<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/kontv_stream/tracks-v1a1/mono.ts.m3u8?nimblesessionid=339881460&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+       KON TV<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/tv100_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339881838&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+       Tv 100<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/cnbce_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339882017&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzozMCBBTSZoYXNoX3ZhbHVlPVkyelVyQmZtYlZmckE1cWplT1ZEWEE9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+      Cnbc-e<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/ulusalkanal_stream/tracks-v1a1/mono.ts.m3u8?nimblesessionid=339882280&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+      Ulusal Kanal<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://mn-nl.mncdn.com/gzttv/gzttv/chunklist.m3u8">
+      GZT Tv<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://tv8.daioncdn.net/tv8bucuk/tv8bucuk_1080p.m3u8?&sid=7gjt691p3qsl&app=bf58ab52-4865-4c81-b223-26b41009801e&ce=3">
+     Tv 8,5<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/yargitv_stream/tracks-v1a1/mono.ts.m3u8?nimblesessionid=339883559&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+     Yargı TV<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://baskentaudiovideo.xyz/LiveApp/streams/mUE22idl26lA1683879097431.m3u8?token=undefined&subscriberId=undefined&subscriberCode=undefined?token=undefined&subscriberId=undefined&subscriberCode=undefined?hash=5289e42277ba7b30785efb000a1306bc">
+     Kanal B<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://yayin1.canlitv.fun/canlitv/genctv.stream/chunklist_w1291074563.m3u8?hash=5289e42277ba7b30785efb000a1306bc">
+     Genç Tv<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://playlist.fasttvcdn.com/pl/rfrk9821hdy9dayo8wfyha/tarih-tv/playlist/1.m3u8">
+     Vav Tv<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn-tytturk.yayin.com.tr/tytturk/tracks-v1a1/mono.m3u8">
+    Tyt Türk<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://str.yodacdn.net/tmb_tr_app/tracks-v1a1/mono.m3u8?token=tmb_app_token_13579">
+    Tmb<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/tv4_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339887148&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+    Tv 4<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/benguturk_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339887687&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+    Bengü Türk<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ottcdn.kablowebtv.net/live_turksat_sub3/trt2_stream/tracks-a1/mono.ts.m3u8?nimblesessionid=339888092&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+    Trt 2<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ottcdn.kablowebtv.net/live_turksat_sub3/tarihtv_stream/tracks-a2/mono.ts.m3u8?nimblesessionid=339888362&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+    Tarih Tv<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://tv-trtturk.medya.trt.com.tr/master_480.m3u8">
+    Trt Türk<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://tv-trtavaz.medya.trt.com.tr/master_360.m3u8">
+    Trt Avaz<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://tv-trt2.medya.trt.com.tr/master_720.m3u8">
+    Trt 2 - Tbmm<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://tv-trtkurdi.medya.trt.com.tr/master_360.m3u8">
+    Trt Kurdi<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ekoltv-live.ercdn.net/ekoltv/ekoltv_1080p.m3u8">
+   Ekol TV<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/tv42_stream/tracks-v1a1/mono.ts.m3u8?nimblesessionid=339889668&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzozMCBBTSZoYXNoX3ZhbHVlPVkyelVyQmZtYlZmckE1cWplT1ZEWEE9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+  TV 42<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/tv5_stream/tracks-v1a1/mono.ts.m3u8?nimblesessionid=339889848&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+ Tv 5<span class="live-badge">CANLI</span>
+      </button>
+        <button class="channel-button" data-src="https://live.artidijitalmedya.com/artidijital_tivi6/tivi6/chunks.m3u8">
+ Tivi 6<span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://eustr73.mediatriple.net/videoonlylive/mtikoimxnztxlive/broadcast_5e3bf95a47e07.smil/mt_0.m3u8">
+Diyanet Tv<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://lbl.netmedya.net/hls/lalegultv.m3u8?hash=5289e42277ba7b30785efb000a1306bc">
+Lalegül Tv<span class="live-badge">CANLI</span>
+      </button>
+
+    </div>
+
+   
+
+    <div class="category" data-category="ulusal-haber">
+      <h3>📰 Ulusal Haber</h3>
+      <button class="channel-button" data-src="https://tv-trthaber.medya.trt.com.tr/master_720.m3u8">
+        Trt Haber <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ciner-live.daioncdn.net/haberturktv/haberturktv_1080p.m3u8">
+       Haber Türk <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://dogus-live.daioncdn.net/ntv/ntv_1080p.m3u8">
+      Ntv <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://halktv-live.daioncdn.net/halktv/halktv_1080p.m3u8">
+    halk tv <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://turkmedya-live.ercdn.net/tv24/tv24_1080p.m3u8">
+     24 Tv <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://meclistv-live.ercdn.net/meclistv/meclistv_720p.m3u8?e=&st=">
+     TBMM TV <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ciner-live.daioncdn.net/haberturktv/haberturktv_1080p.m3u8">
+    Haber Türk <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://ciner-live.daioncdn.net/bloomberght/bloomberght_720p.m3u8">
+    Bloomberg Ht <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://yayin1.canlitv.fun/canlitv/tv2020.stream/chunklist_w182324962.m3u8?hash=5289e42277ba7b30785efb000a1306bc">
+    TV 2020 <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://edge.socialsmart.tv/turkhaber/bant1/chunks.m3u8?nimblesessionid=664344208">
+    TH TÜRK HABER <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://akittv-live.ercdn.net/akittv/akittv_480p.m3u8?hash=5289e42277ba7b30785efb000a1306bc">
+    Akit Tv <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://yayin1.canlitv.fun/canlitv/ilketv.stream/chunklist_w1401526318.m3u8?hash=5289e42277ba7b30785efb000a1306bc">
+   İLKE TV <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://tv.ensonhaber.com/haberglobal/haberglobal.m3u8">
+    Haber Global <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://yayin2.canlitv.fun/live/flashtv.stream/chunklist_w1165726356.m3u8?hash=5289e42277ba7b30785efb000a1306bc">
+    Flash Haber Tv <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://halktv-live.daioncdn.net/halktv/halktv_1080p.m3u8">
+    Halk Tv <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://edge.socialsmart.tv/turkhaber/bant1/chunks.m3u8?nimblesessionid=664349059">
+    TH Türk Haber <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/szctv_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339910512&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+    Szc Tv <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://trkvz-live.ercdn.net/aparahd/aparahd_720p.m3u8?st=CmnF3N0zMv-Mw2S8K93fig&e=1748903043">
+    A Para <span class="live-badge">CANLI</span>
+      </button>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/ekoturk_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339910773&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+   Ekotürk <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="http://nrttn172.kesintisizyayin.com:29010/lidertv/lidertv/sec-f5-v1-a1.m3u8">
+   Lider Haber <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://tele1-live.ercdn.net/tele1/tele1_1080p.m3u8">
+   Tele 1 <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://live.artidijitalmedya.com/artidijital_astv/astv/playlist.m3u8">
+   As Tv <span class="live-badge">CANLI</span>
+      </button>
+         <button class="channel-button" data-src="https://tinyurl.com/yvwmpsxs">
+   Tarih TV <span class="live-badge">CANLI</span>
+      </button>
+    </div>
+
+
+    <div class="category" data-category="belgesel">
+      <h3>📚 Belgesel</h3>
+      <button class="channel-button" data-src="https://tv-trtbelgesel.medya.trt.com.tr/master.m3u8">
+        Trt Belgesel<span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://saran-live.ercdn.net/natgeohd/index.m3u8">
+       National Geographic <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ottcdn.kablowebtv.net/live_turksat_sub3/natgeowild_stream/tracks-a1/mono.ts.m3u8?nimblesessionid=339912124&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+       National Geographic Wild <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://qmaalhy7acgxwhm.ngolpdkyoctjcddxshli469r.org/sunshine/glYe1nCZTKUjSPQYm9vHNIpXLP_m7v1oJ3ThWukOk_15AoLxavY_LSY5ZYEFUivy7wmw8PyugVyL0ZJKDa7ikmav_eH1GR_zqIlpK1LYpLv1u7b84NwzWyrNk-tlYxUFA0NGBsw6fDwpMD3wZzrY6czAKJ1okT7Hd70RaV8N1B4/hls/index.m3u8">
+       Discovery Channel <span class="live-badge">VPN GEREKİR</span>
+      </button>
+      <button class="channel-button" data-src="https://iezmzlrgtn5pgme.ngolpdkyoctjcddxshli469r.org/sunshine/tgZ5d-pFb4ksc-uvb80Ul9N4Jyy6eSiQQS9MyyspERJqkerUeRjB24B3Q_IZfVNPHkbguM5w-G6vCUo_Z0SOFBuObCAQkDkgy2AtJQUxBCnWKyYLI-TbTVwi2iuzIF897FaIv4ut-5eL13BOHy56RdUrXkcE3aOJKD2ZGk8bkOY/hls/index.m3u8">
+        
+    ID <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://ottcdn.kablowebtv.net/live_turksat_sub3/viasathistory_stream/tracks-a3/mono.ts.m3u8?nimblesessionid=339913037&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+      Viasat History <span class="live-badge">VPN GEREKİR</span>
+      </button>
+      <button class="channel-button" data-src="https://ottcdn.kablowebtv.net/live_turksat_sub3/lovenaturehd_stream/tracks-a1/mono.ts.m3u8?nimblesessionid=339913653&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzozMCBBTSZoYXNoX3ZhbHVlPVkyelVyQmZtYlZmckE1cWplT1ZEWEE9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+      Love Nature <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://saran-live.ercdn.net/natgeowild/index.m3u8">
+      Nat Geo Wild <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://iezmzlrgtn5pgme.ngolpdkyoctjcddxshli469r.org/sunshine/gv4OTfKvcF-BnlgtJXxoqS0u_nJw1hHSvL26-17BISb7Y_eruLNY0GKj73U7iKXKtF4_pZJHqqzWNCh0h4Mw1kjol0udEyfUyTvmknD-fnOzU9XbEP4u_WYqDdy9kD0jXTWNwMdHRXjCGKmwePqP55pLOPdA6tsd8fSZalxq110/hls/index.m3u8">
+      Viasat Explore <span class="live-badge">VPN GEREKİR</span>
+      </button>
+       <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/cgtndocu_stream/tracks-v1a1/mono.ts.m3u8?nimblesessionid=339914525&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzozMCBBTSZoYXNoX3ZhbHVlPVkyelVyQmZtYlZmckE1cWplT1ZEWEE9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+     Cgtn Documentary <span class="live-badge">CANLI</span>
+      </button>
+        
+    </div>
+
+
+    <div class="category" data-category="cocuk-egitim">
+      <h3>👶 Çocuk & Eğitim</h3>
+      <button class="channel-button" data-src="https://tv-trtcocuk.medya.trt.com.tr/master_720.m3u8">
+        Trt Çocuk <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://trkvz.daioncdn.net/minikago_cocuk/minikago_cocuk_720p.m3u8?e=1748904692&st=vREJr3HaC-rUqWp-VVA3vw&sid=7gjtul2y13nd&app=8e9e79c3-44e3-4a41-a921-1d8f0e7887c0&ce=3">
+       Minika Çocuk <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://trkvz.daioncdn.net/minikago/minikago_720p.m3u8?e=1748904726&st=Swy_Ir6jUcVk1p7EXtJAWw&sid=7gjtwgoilv44&app=be451f3e-b8d8-4edd-8469-1030b5ad7fd3&ce=3">
+       Minika Go <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://tv-trtdiyanetcocuk.medya.trt.com.tr/master_720.m3u8">
+      Trt Diyanet Çocuk <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://streams.spacetoon.com/live/stchannel/smil:livesmil.smil/chunklist_w1024511280_b946000_slAR.m3u8">
+     Spacetoon <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://ottcdn.kablowebtv.net/live_turksat_sub3/gamescreen_stream/tracks-a2/mono.ts.m3u8?nimblesessionid=339915634&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzozMCBBTSZoYXNoX3ZhbHVlPVkyelVyQmZtYlZmckE1cWplT1ZEWEE9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+    Azoomee <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://saran-live.ercdn.net/babytv/index.m3u8">
+    Baby Tv <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://saran-live.ercdn.net/disneyjunior/index.m3u8">
+   Disney Junior <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://yayin2.canlitv.fun/live/cartoon-network.stream/chunklist_w1414033781.m3u8?hash=5289e42277ba7b30785efb000a1306bc">
+   Cartoon Network <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://zindikirmancki.zaroktv.com.tr/hls/0/stream.m3u8">
+  Zarok tv <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/englishclub_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339916331&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+  English Club <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="http://b3659824.rossteleccom.net/iptv/BCGWTA42BLCZPK/6857/index.m3u8">
+  Da Vinci <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/langlab_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339916792&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+ LangLab <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/langlab_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339916792&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+LingoToons <span class="live-badge">CANLI</span>
+      </button>
+       <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/tinyteen_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339917969&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzozMCBBTSZoYXNoX3ZhbHVlPVkyelVyQmZtYlZmckE1cWplT1ZEWEE9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+TinyTeen <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/trteba_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339918167&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+Trt Eba TV <span class="live-badge">CANLI</span>
+      </button>
+    </div>
+
+    <div class="category" data-category="muzik">
+      <h3>🎵 Müzik</h3>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/trtmuzik_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339920791&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+        Trt Müzik <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/dreamturk_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339921000&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+        Dream Türk <span class="live-badge">CANLI</span>
+      </button>
+      <button class="channel-button" data-src="https://cdn06.kablowebtv.net/live_turksat_sub3/traceurban_stream/tracks-v3a1/mono.ts.m3u8?nimblesessionid=339921095&wmsAuthSign=c2VydmVyX3RpbWU9Ni8yLzIwMjUgNDo1NzoyOSBBTSZoYXNoX3ZhbHVlPTR6R2V0U2VYWW4rOFNiRFJLTll5eGc9PSZ2YWxpZG1pbnV0ZXM9Mjg4MCZpZD0wOTNkNzIwYS01MDJjLTQxZWQtYTgwZi0yYjgxNjk4NGZiOTUsODk3NDFmZWMtMWQzMy00YzAwLWFmY2QtM2ZkYWZlMGI2YTJkLDE1MmJkNTM5LTYyMjAtNDQyNy1hOTE1LWJmNGJkMDY4ZDdlOCxhNjk5YjgzZi04MjZiLTRkOTktOTM2MS1jOGEzMTMyMThkNDYsMCw6OmZmZmY6MTAuMC4wLjIwNg==">
+       Trace Urban <span class="live-badge">CANLI</span>
+      </button>
+    </div>
+
+  </div>
+
+  <button class="toggle-button" id="toggleBtn" aria-label="Kanal listesini aç/kapat">❯</button>
+
+  <div class="content">
+    <video
+      id="my-video"
+      class="video-js vjs-default-skin"
+      controls
+      preload="auto"
+      autoplay
+      muted
+      data-setup="{}"
+      playsinline
+    >
+      <source src="https://deneme123.parisiptv1.workers.dev/Bein-Sport-1-FHD/tracks-v1a1/mono.m3u8" type="application/x-mpegURL" />
+      Tarayıcınız video tagını desteklemiyor.
+    </video>
+  </div>
+</div>
+
+<!-- Bilgilendirme modal -->
+<div class="info-modal" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="infoTitle" tabindex="-1">
+  <button class="close-info" id="closeInfoBtn" aria-label="Bilgilendirmeyi kapat">&times;</button>
+  <h2 id="infoTitle">Bilgilendirme</h2>
+  <p>
+    Bu site üzerinden canlı yayın kanallarını izleyebilirsiniz.<br>
+    Kanallar düzenli olarak güncellenmektedir.<br>
+    <br>
+    İyi seyirler!
+  </p>
+</div>
+
+<script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const videoPlayer = videojs('my-video');
+  const telegramBtn = document.getElementById('telegramBtn');
+  const infoBtn = document.getElementById('infoBtn');
+  const infoModal = document.getElementById('infoModal');
+  const closeInfoBtn = document.getElementById('closeInfoBtn');
+
+  // Toggle sidebar aç/kapa
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('closed');
+    if(sidebar.classList.contains('closed')) {
+      toggleBtn.innerText = '❮';
+      toggleBtn.style.left = '0';
+    } else {
+      toggleBtn.innerText = '❯';
+      toggleBtn.style.left = '260px';
+    }
+  });
+
+  // Kanal butonlarına tıklayınca video değiştir
+  document.querySelectorAll('.channel-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const src = btn.getAttribute('data-src');
+      if(src) {
+        videoPlayer.src({ src, type: 'application/x-mpegURL' });
+        videoPlayer.play();
+      }
+    });
+  });
+
+  // Arama filtreleme
+  function filterChannels(searchTerm) {
+    const categories = document.querySelectorAll('.category');
+    const term = searchTerm.toLowerCase();
+
+    categories.forEach(cat => {
+      let anyVisible = false;
+      cat.querySelectorAll('.channel-button').forEach(btn => {
+        const text = btn.textContent.toLowerCase();
+        if(text.includes(term)) {
+          btn.style.display = 'block';
+          anyVisible = true;
+        } else {
+          btn.style.display = 'none';
+        }
+      });
+      cat.style.display = anyVisible ? 'block' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+<!-- SES ve TAM EKRAN Butonları -->
+<div id="video-controls" style="
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 9999;
+  transition: opacity 0.4s ease;
+  opacity: 1;
+">
+
+  <!-- Sesi Aç -->
+  <button onclick="unmutePlayer()" style="
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 40px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  ">
+    🔊 <span>Sesi Aç</span>
+  </button>
+
+  <!-- Tam Ekran -->
+  <button onclick="fullscreenPlayer()" style="
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 40px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  ">
+    ⛶ <span>Tam Ekran</span>
+  </button>
+
+</div>
+
+<script>
+  const controls = document.getElementById('video-controls');
+  let hideControlsTimeout;
+
+  function showControls() {
+    controls.style.opacity = '1';
+    clearTimeout(hideControlsTimeout);
+    hideControlsTimeout = setTimeout(() => {
+      controls.style.opacity = '0';
+    }, 3000);
+  }
+
+  // Başlangıçta kontrolleri gizle
+  hideControlsTimeout = setTimeout(() => {
+    controls.style.opacity = '0';
+  }, 3000);
+
+  // Mouse veya parmak ekran hareketi
+  document.addEventListener('mousemove', showControls);
+  document.addEventListener('touchstart', showControls);
+
+  // Butonlar için işlevler
+  function unmutePlayer() {
+    const player = videojs('my-video');
+    player.muted(false);
+    player.volume(1);
+  }
+
+  function fullscreenPlayer() {
+    const player = videojs('my-video');
+    if (player.requestFullscreen) {
+      player.requestFullscreen();
+    } else if (player.enterFullScreen) {
+      player.enterFullScreen(); // iOS gibi cihazlar için
+    }
+  }
+</script>
+
+
+
+
+
+<script>
+  const controls = document.getElementById('video-controls');
+
+  function isMobile() {
+    return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  }
+
+  function checkControlsVisibility() {
+    const channelList = document.getElementById('channel-list');
+    if (!channelList) return;
+
+    const isChannelListOpen = channelList.classList.contains('open'); // 'open' class'ını açılınca ekle
+
+    if (isMobile() && isChannelListOpen) {
+      controls.style.display = 'none';
+    } else {
+      controls.style.display = 'flex';
+    }
+  }
+
+  // Kanal listesi açılıp kapanınca sürekli kontrol et
+  setInterval(checkControlsVisibility, 300);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
