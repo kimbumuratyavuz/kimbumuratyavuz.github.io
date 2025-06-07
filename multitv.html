@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiTV Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .channel-grid {
+            display: grid;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        .grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-6 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .grid-9 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .youtube-embed {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .youtube-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .settings-panel {
+            transition: transform 0.3s ease;
+            transform: translateX(100%);
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .settings-panel.open {
+            transform: translateX(0);
+        }
+        
+        .sortable-channels {
+            min-height: 200px;
+        }
+        
+        .channel-item {
+            cursor: move;
+            margin-bottom: 8px;
+        }
+        
+        .channel-item.dragging {
+            opacity: 0.5;
+            background-color: #f0f0f0;
+        }
+        
+        /* Custom scrollbar for settings panel */
+        .settings-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .settings-panel::-webkit-scrollbar-track {
+            background: #374151;
+        }
+        
+        .settings-panel::-webkit-scrollbar-thumb {
+            background: #4B5563;
+            border-radius: 4px;
+        }
+        
+        .settings-panel::-webkit-scrollbar-thumb:hover {
+            background: #6B7280;
+        }
+        
+        .settings-content {
+            min-height: calc(100vh - 120px);
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Header -->
+            <header class="bg-gray-800 p-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold">MultiTV Clone</h1>
+                <button id="settingsButton" class="p-2 rounded-full hover:bg-gray-700">
+                    <i class="fas fa-cog text-xl"></i>
+                </button>
+            </header>
+            
+            <!-- TV Grid -->
+            <div id="tvGrid" class="channel-grid grid-4 h-full">
+                <!-- Channels will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="settings-panel fixed inset-y-0 right-0 w-96 bg-gray-800 shadow-lg z-10">
+            <div class="p-4 sticky top-0 bg-gray-800 z-20">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Ayarlar</h2>
+                    <button id="closeSettings" class="p-2 rounded-full hover:bg-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="settings-content px-4">
+                <div class="mb-6">
+                    <label class="block mb-2 font-medium">Kanal Sayısı</label>
+                    <div class="flex space-x-4">
+                        <button data-count="4" class="channel-count-btn px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">4 Kanallı</button>
+                        <button data-count="6" class="channel-count-btn px-4 py-2 bg-gray-600 rounded hover:bg-gray-700">6 Kanallı</button>
+                        <button data-count="9" class="channel-count-btn px-4 py-2 bg-gray-600 rounded hover:bg-gray-700">9 Kanallı</button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block mb-2 font-medium">Kanal Listesi</label>
+                    <div id="sortableChannels" class="sortable-channels bg-gray-700 p-3 rounded">
+                        <!-- Channels will be listed here -->
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <button id="addChannelBtn" class="w-full py-2 bg-green-600 rounded hover:bg-green-700">
+                        <i class="fas fa-plus mr-2"></i> Yeni Kanal Ekle
+                    </button>
+                </div>
+                
+                <div id="addChannelForm" class="hidden mb-6 bg-gray-700 p-4 rounded">
+                    <h3 class="font-medium mb-3">Yeni Kanal Ekle</h3>
+                    <div class="mb-3">
+                        <label class="block mb-1">Kanal Adı</label>
+                        <input type="text" id="channelName" class="w-full px-3 py-2 bg-gray-600 rounded text-white">
+                    </div>
+                    <div class="mb-3">
+                        <label class="block mb-1">YouTube URL</label>
+                        <input type="text" id="channelUrl" class="w-full px-3 py-2 bg-gray-600 rounded text-white" placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="saveNewChannel" class="flex-1 py-2 bg-blue-600 rounded hover:bg-blue-700">Kaydet</button>
+                        <button id="cancelAddChannel" class="flex-1 py-2 bg-gray-600 rounded hover:bg-gray-700">İptal</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 sticky bottom-0 bg-gray-800 z-20">
+                <button id="saveSettings" class="w-full py-3 bg-blue-600 rounded hover:bg-blue-700 font-medium">
+                    <i class="fas fa-save mr-2"></i> Ayarları Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const settingsButton = document.getElementById('settingsButton');
+            const closeSettings = document.getElementById('closeSettings');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const channelCountBtns = document.querySelectorAll('.channel-count-btn');
+            const addChannelBtn = document.getElementById('addChannelBtn');
+            const addChannelForm = document.getElementById('addChannelForm');
+            const saveNewChannel = document.getElementById('saveNewChannel');
+            const cancelAddChannel = document.getElementById('cancelAddChannel');
+            const saveSettings = document.getElementById('saveSettings');
+            const sortableChannels = document.getElementById('sortableChannels');
+            const tvGrid = document.getElementById('tvGrid');
+            
+            // State
+            let channels = JSON.parse(localStorage.getItem('channels')) || [
+                { name: "CNN", url: "https://www.youtube.com/watch?v=y3lImQkQICw", originalUrl: "https://www.youtube.com/watch?v=y3lImQkQICw" },
+                { name: "Halk TV", url: "https://www.youtube.com/watch?v=glQgAFUv-AM", originalUrl: "https://www.youtube.com/watch?v=glQgAFUv-AM" },
+                { name: "HaberTürk", url: "https://www.youtube.com/watch?v=DHSzeh3THCE", originalUrl: "https://www.youtube.com/watch?v=DHSzeh3THCE" },
+                { name: "Sözcü", url: "https://www.youtube.com/watch?v=ztmY_cCtUl0", originalUrl: "https://www.youtube.com/watch?v=ztmY_cCtUl0" },
+                { name: "A Haber", url: "https://www.youtube.com/watch?v=nmY9i63t6qo", originalUrl: "https://www.youtube.com/watch?v=nmY9i63t6qo" },
+                { name: "Haber Global", url: "https://www.youtube.com/watch?v=6BX-NUzBSp8", originalUrl: "https://www.youtube.com/watch?v=6BX-NUzBSp8" },
+            ];
+            
+            let channelCount = parseInt(localStorage.getItem('channelCount')) || 4;
+            
+            // Initialize
+            updateChannelCountButtons();
+            renderChannelList();
+            renderTVGrid();
+            
+            // Event Listeners
+            settingsButton.addEventListener('click', toggleSettings);
+            closeSettings.addEventListener('click', toggleSettings);
+            
+            channelCountBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    channelCount = parseInt(this.dataset.count);
+                    updateChannelCountButtons();
+                    renderTVGrid(); // Update the grid when channel count changes
+                });
+            });
+            
+            addChannelBtn.addEventListener('click', function() {
+                addChannelForm.classList.remove('hidden');
+            });
+            
+            cancelAddChannel.addEventListener('click', function() {
+                addChannelForm.classList.add('hidden');
+                document.getElementById('channelName').value = '';
+                document.getElementById('channelUrl').value = '';
+            });
+            
+            saveNewChannel.addEventListener('click', addNewChannel);
+            
+            saveSettings.addEventListener('click', function() {
+                localStorage.setItem('channels', JSON.stringify(channels));
+                localStorage.setItem('channelCount', channelCount);
+                alert('Ayarlar kaydedildi!');
+                renderTVGrid(); // Refresh the grid after saving
+            });
+            
+            // Make channels sortable
+            sortableChannels.addEventListener('dragstart', function(e) {
+                if (e.target.classList.contains('channel-item')) {
+                    draggedItem = e.target;
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', e.target.dataset.index);
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+            
+            sortableChannels.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                const afterElement = getDragAfterElement(sortableChannels, e.clientY);
+                const currentItem = document.querySelector('.dragging');
+                
+                if (afterElement == null) {
+                    sortableChannels.appendChild(currentItem);
+                } else {
+                    sortableChannels.insertBefore(currentItem, afterElement);
+                }
+            });
+            
+            sortableChannels.addEventListener('dragend', function(e) {
+                if (e.target.classList.contains('channel-item')) {
+                    e.target.classList.remove('dragging');
+                    
+                    // Update channels array based on new order
+                    const newChannels = [];
+                    const channelItems = sortableChannels.querySelectorAll('.channel-item');
+                    
+                    channelItems.forEach(item => {
+                        const index = parseInt(item.dataset.index);
+                        newChannels.push(channels[index]);
+                    });
+                    
+                    channels = newChannels;
+                    renderTVGrid(); // Update the grid after reordering
+                }
+            });
+            
+            // Functions
+            function toggleSettings() {
+                settingsPanel.classList.toggle('open');
+            }
+            
+            function updateChannelCountButtons() {
+                channelCountBtns.forEach(btn => {
+                    const btnCount = parseInt(btn.dataset.count);
+                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    btn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+                    
+                    if (btnCount === channelCount) {
+                        btn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+                        btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    }
+                });
+            }
+            
+            function renderTVGrid() {
+                // Clear the grid first
+                tvGrid.innerHTML = '';
+                
+                // Update grid layout class
+                tvGrid.className = 'channel-grid h-full';
+                
+                if (channelCount === 4) {
+                    tvGrid.classList.add('grid-4');
+                } else if (channelCount === 6) {
+                    tvGrid.classList.add('grid-6');
+                } else if (channelCount === 9) {
+                    tvGrid.classList.add('grid-9');
+                }
+                
+                // Only show up to the selected channel count
+                const channelsToShow = channels.slice(0, channelCount);
+                
+                channelsToShow.forEach(channel => {
+                    const channelElement = document.createElement('div');
+                    channelElement.className = 'bg-gray-800 rounded overflow-hidden';
+                    
+                    // Extract YouTube video ID from URL
+                    let videoId = '';
+                    const url = channel.url;
+                    
+                    if (url.includes('youtube.com/watch?v=')) {
+                        videoId = url.split('v=')[1].split('&')[0];
+                    } else if (url.includes('youtu.be/')) {
+                        videoId = url.split('youtu.be/')[1].split('?')[0];
+                    } else if (url.includes('youtube.com/embed/')) {
+                        videoId = url.split('embed/')[1].split('?')[0];
+                    }
+                    
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+                    
+                    channelElement.innerHTML = `
+                        <div class="p-2 font-medium truncate">${channel.name}</div>
+                        <div class="youtube-embed">
+                            <iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    `;
+                    
+                    tvGrid.appendChild(channelElement);
+                });
+            }
+            
+            function renderChannelList() {
+                sortableChannels.innerHTML = '';
+                
+                channels.forEach((channel, index) => {
+                    const channelItem = document.createElement('div');
+                    channelItem.className = 'channel-item bg-gray-600 p-3 rounded flex justify-between items-center draggable';
+                    channelItem.dataset.index = index;
+                    channelItem.draggable = true;
+                    
+                    // Use originalUrl if available, otherwise use url
+                    const displayUrl = channel.originalUrl || channel.url;
+                    
+                    channelItem.innerHTML = `
+                        <div class="flex-1">
+                            <input type="text" value="${channel.name}" class="channel-name-input w-full px-2 py-1 bg-gray-500 rounded mb-1">
+                            <input type="text" value="${displayUrl}" class="channel-url-input w-full px-2 py-1 bg-gray-500 rounded">
+                        </div>
+                        <button class="delete-channel ml-2 p-2 text-red-400 hover:text-red-300">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    sortableChannels.appendChild(channelItem);
+                    
+                    // Add event listeners for the inputs and delete button
+                    const nameInput = channelItem.querySelector('.channel-name-input');
+                    const urlInput = channelItem.querySelector('.channel-url-input');
+                    const deleteBtn = channelItem.querySelector('.delete-channel');
+                    
+                    nameInput.addEventListener('change', function() {
+                        channels[index].name = this.value;
+                    });
+                    
+                    urlInput.addEventListener('change', function() {
+                        const url = this.value;
+                        channels[index].url = convertToEmbedUrl(url);
+                        channels[index].originalUrl = url;
+                    });
+                    
+                    deleteBtn.addEventListener('click', function() {
+                        channels.splice(index, 1);
+                        renderChannelList();
+                        renderTVGrid(); // Update the grid after deletion
+                    });
+                });
+            }
+            
+            function addNewChannel() {
+                const name = document.getElementById('channelName').value.trim();
+                const url = document.getElementById('channelUrl').value.trim();
+                
+                if (name && url) {
+                    const embedUrl = convertToEmbedUrl(url);
+                    
+                    channels.push({ 
+                        name, 
+                        url: embedUrl,
+                        originalUrl: url 
+                    });
+                    renderChannelList();
+                    
+                    document.getElementById('channelName').value = '';
+                    document.getElementById('channelUrl').value = '';
+                    addChannelForm.classList.add('hidden');
+                    
+                    // If we're adding a channel when we have fewer than the selected count, update the grid
+                    if (channels.length <= channelCount) {
+                        renderTVGrid();
+                    }
+                } else {
+                    alert('Lütfen kanal adı ve URL giriniz.');
+                }
+            }
+            
+            function convertToEmbedUrl(url) {
+                if (url.includes('youtube.com/watch?v=')) {
+                    const videoId = url.split('v=')[1].split('&')[0];
+                    return `https://www.youtube.com/embed/${videoId}`;
+                } else if (url.includes('youtu.be/')) {
+                    const videoId = url.split('youtu.be/')[1].split('?')[0];
+                    return `https://www.youtube.com/embed/${videoId}`;
+                }
+                return url; // Return as-is if not a standard YouTube URL
+            }
+            
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.channel-item:not(.dragging)')];
+                
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+        });
+    </script>
+</body>
+</html>
