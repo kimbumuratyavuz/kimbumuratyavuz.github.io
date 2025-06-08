@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON'dan M3U'ya Dönüştürücü</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+        }
+        .preview-box {
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .copy-btn {
+            transition: all 0.3s ease;
+        }
+        .copy-btn:hover {
+            transform: translateY(-2px);
+        }
+        .copy-btn.copied {
+            background-color: #10b981 !important;
+        }
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid #6e8efb;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="gradient-bg text-white py-12 px-4 shadow-lg">
+        <div class="container mx-auto max-w-6xl">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-2">JSON'dan M3U'ya Dönüştürücü</h1>
+                    <p class="text-lg opacity-90">JSON medya verilerinizi anında M3U çalma listesi formatına dönüştürün</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="howToBtn" class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
+                        <i class="fas fa-question-circle mr-2"></i> Nasıl Kullanılır
+                    </button>
+                    <button id="exampleBtn" class="bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-800 transition">
+                        <i class="fas fa-lightbulb mr-2"></i> Örnek Yükle
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto max-w-6xl px-4 py-8 -mt-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="flex border-b">
+                <button class="tab-btn active px-6 py-4 text-gray-700" data-tab="input">JSON Girişi</button>
+                <button class="tab-btn px-6 py-4 text-gray-700" data-tab="output">M3U Çıktısı</button>
+            </div>
+
+            <div id="inputTab" class="p-6">
+                <div class="mb-4">
+                    <label for="jsonInput" class="block text-gray-700 font-medium mb-2">JSON verilerinizi buraya yapıştırın:</label>
+                    <textarea id="jsonInput" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder='JSON verilerini buraya yapıştırın, örneğin: [{"id":8565,"type":"movie",...}]'></textarea>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i> Medya nesnelerinin JSON dizilerini destekler
+                    </div>
+                    <button id="convertBtn" class="gradient-bg text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition flex items-center">
+                        <i class="fas fa-exchange-alt mr-2"></i> M3U'ya Dönüştür
+                    </button>
+                </div>
+            </div>
+
+            <div id="outputTab" class="p-6 hidden">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">M3U Çalma Listesi Çıktısı:</label>
+                    <div class="preview-box bg-gray-50 p-4 border border-gray-300 rounded-lg font-mono text-sm relative">
+                        <pre id="m3uOutput"># M3U çalma listeniz dönüştürme işleminden sonra burada görünecek</pre>
+                        <button id="copyBtn" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700">
+                            <i class="fas fa-copy mr-1"></i> Kopyala
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-download mr-1"></i> <span id="itemCount">0</span> öğe dönüştürüldü
+                    </div>
+                    <div class="flex space-x-3">
+                        <button id="downloadBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition flex items-center">
+                            <i class="fas fa-file-download mr-2"></i> İndir
+                        </button>
+                        <button id="clearBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition flex items-center">
+                            <i class="fas fa-trash-alt mr-2"></i> Temizle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto max-w-6xl px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">M3U Formatı Hakkında</h2>
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 mb-4">
+                        M3U, multimedya çalma listeleri için bir bilgisayar dosya formatıdır. Bir M3U dosyası, medya dosyalarının konumlarını belirten düz bir metin dosyasıdır. M3U dosyasındaki her giriş, meta verileri ve URL'si ile birlikte bir medya öğesini temsil eder.
+                    </p>
+                    <p class="text-gray-700">
+                        Bu format genellikle IPTV çalma listeleri ve medya akışı için kullanılır. Dönüştürücümüz, JSON medya verilerini VLC, Kodi ve IPTV uygulamaları gibi çoğu medya oynatıcıda kullanılabilecek M3U formatına dönüştürür.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nasıl Kullanılır Modal -->
+    <div id="howToModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">JSON'dan M3U'ya Dönüştürücü Kullanım Kılavuzu</h3>
+                    <button id="closeHowToModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="prose max-w-none">
+                    <ol class="list-decimal pl-5 space-y-3 text-gray-700">
+                        <li>JSON verilerinizi gerekli formatta hazırlayın (medya nesneleri dizisi)</li>
+                        <li>JSON verilerini giriş metin alanına yapıştırın</li>
+                        <li>"M3U'ya Dönüştür" butonuna tıklayın</li>
+                        <li>Oluşturulan M3U çalma listesini çıktı sekmesinde görüntüleyin</li>
+                        <li>Medya oynatıcınızda kullanmak için M3U dosyasını kopyalayın veya indirin</li>
+                    </ol>
+                    <h4 class="font-bold mt-4 mb-2">Gerekli JSON Alanları:</h4>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                        <li><code>id</code> - Medya öğesi için benzersiz tanımlayıcı</li>
+                        <li><code>title</code> - Medyanın başlığı</li>
+                        <li><code>image</code> veya <code>tvg-logo</code> - Medyanın logosuna ait URL</li>
+                        <li><code>sources</code> - En az bir kaynak URL'si içeren dizi</li>
+                        <li><code>year</code> - Yayın yılı (isteğe bağlı ama önerilir)</li>
+                        <li><code>label</code> veya <code>sublabel</code> - Ek meta veriler (isteğe bağlı)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto max-w-6xl px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-xl font-bold">JSON'dan M3U'ya Dönüştürücü</h3>
+                    <p class="text-gray-400">JSON medya verilerini M3U çalma listelerine dönüştürmek için ücretsiz çevrimiçi araç</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-github fa-lg"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fas fa-envelope fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                &copy; 2025 JSON to M3U Converter. Created by Murat Yavuz. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const inputTab = document.getElementById('inputTab');
+            const outputTab = document.getElementById('outputTab');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    
+                    // Update active tab button
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding tab
+                    inputTab.classList.add('hidden');
+                    outputTab.classList.add('hidden');
+                    
+                    if (tab === 'input') {
+                        inputTab.classList.remove('hidden');
+                    } else {
+                        outputTab.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Nasıl Kullanılır modal
+            const howToBtn = document.getElementById('howToBtn');
+            const howToModal = document.getElementById('howToModal');
+            const closeHowToModal = document.getElementById('closeHowToModal');
+
+            howToBtn.addEventListener('click', () => {
+                howToModal.classList.remove('hidden');
+            });
+
+            closeHowToModal.addEventListener('click', () => {
+                howToModal.classList.add('hidden');
+            });
+
+            // Örnek yükle
+            const exampleBtn = document.getElementById('exampleBtn');
+            const jsonInput = document.getElementById('jsonInput');
+
+            exampleBtn.addEventListener('click', () => {
+                const exampleData = [
+                    {
+                        "id": 8565,
+                        "type": "movie",
+                        "title": "Ulajh",
+                        "label": "Altyazı",
+                        "sublabel": "2024",
+                        "description": "Suhana Bhatia (Janhvi Kapoor), etkili ve vatanseverliğiyle bilinen köklü bir diplomat ailesinin genç bir üyesidir. Hızla yükselerek, Birleşik Krallık'taki Hindistan Yüksek Komiserliği'nde genç yaşında önemli bir göreve atanır. Bu terfi, Bhatia ailesi için büyük bir gurur kaynağıdır.",
+                        "year": 2024,
+                        "imdb": 6,
+                        "comment": true,
+                        "rating": 0,
+                        "duration": "2h 14min",
+                        "downloadas": "3",
+                        "playas": "1",
+                        "classification": "+13",
+                        "image": "https://c.prectv47.lol/uploads/cache/poster_thumb/uploads/jpg/957cd4e521a63ac24fc89bbdf18f683c.jpg",
+                        "cover": "https://c.prectv47.lol/uploads/cache/cover_thumb/uploads/jpg/e6ec20e3d94414c6aeaab0f982c3847d.jpg",
+                        "genres": [
+                            {"id": 2, "title": "Dram"},
+                            {"id": 9, "title": "Gerilim"},
+                            {"id": 27, "title": "Türkçe Altyazı"}
+                        ],
+                        "trailer": {
+                            "id": 315065,
+                            "type": "youtube",
+                            "url": "https://www.youtube.com/watch?v=Tk1EQD7vGiY"
+                        },
+                        "sources": [
+                            {
+                                "id": 315066,
+                                "title": "m3u8",
+                                "quality": null,
+                                "size": null,
+                                "kind": "both",
+                                "premium": "1",
+                                "external": false,
+                                "type": "m3u8",
+                                "url": "https://load.rectv2024live.com/hls/11/cdn65/sacHIqdzZA1Vl2SemidQvv4McfrBpgohPpcCuVwK.mp4/index.m3u8"
+                            }
+                        ]
+                    },
+                    {
+                        "id": 8566,
+                        "type": "movie",
+                        "title": "Örnek Film",
+                        "label": "HD",
+                        "sublabel": "2023",
+                        "year": 2023,
+                        "image": "https://example.com/poster.jpg",
+                        "sources": [
+                            {
+                                "url": "https://example.com/stream.m3u8"
+                            }
+                        ]
+                    }
+                ];
+                
+                jsonInput.value = JSON.stringify(exampleData, null, 2);
+            });
+
+            // JSON'u M3U'ya dönüştür
+            const convertBtn = document.getElementById('convertBtn');
+            const m3uOutput = document.getElementById('m3uOutput');
+            const itemCount = document.getElementById('itemCount');
+            const copyBtn = document.getElementById('copyBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const clearBtn = document.getElementById('clearBtn');
+
+            convertBtn.addEventListener('click', function() {
+                try {
+                    const jsonData = JSON.parse(jsonInput.value);
+                    
+                    if (!Array.isArray(jsonData)) {
+                        throw new Error('Giriş bir JSON dizisi olmalıdır');
+                    }
+                    
+                    let m3uContent = '#EXTM3U\n';
+                    
+                    jsonData.forEach(item => {
+                        if (!item.id || !item.title || !item.sources || !item.sources[0].url) {
+                            console.warn('Geçersiz öğe atlandı:', item);
+                            return;
+                        }
+                        
+                        const logo = item.image || '';
+                        const year = item.year ? ` (${item.year})` : '';
+                        const label = item.label ? ` [${item.label}]` : '';
+                        
+                        m3uContent += `#EXTINF:-1 tvg-id="${item.id}" tvg-name="${item.title}" tvg-logo="${logo}",${item.title}${year}${label}\n`;
+                        m3uContent += `${item.sources[0].url}\n`;
+                    });
+                    
+                    m3uOutput.textContent = m3uContent;
+                    itemCount.textContent = jsonData.length;
+                    
+                    // Çıktı sekmesine geç
+                    tabBtns[1].click();
+                } catch (error) {
+                    alert('JSON dönüştürme hatası: ' + error.message);
+                    console.error(error);
+                }
+            });
+
+            // Panoya kopyala
+            copyBtn.addEventListener('click', function() {
+                const text = m3uOutput.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Kopyalandı!';
+                    
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Kopyala';
+                    }, 2000);
+                });
+            });
+
+            // M3U dosyasını indir
+            downloadBtn.addEventListener('click', function() {
+                const content = m3uOutput.textContent;
+                const blob = new Blob([content], { type: 'application/x-mpegURL' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'playlist.m3u';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // Temizle
+            clearBtn.addEventListener('click', function() {
+                jsonInput.value = '';
+                m3uOutput.textContent = '# M3U çalma listeniz dönüştürme işleminden sonra burada görünecek';
+                itemCount.textContent = '0';
+            });
+        });
+    </script>
+</body>
+</html>
