@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Merkezefendi Radyo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +16,7 @@
             animation: pulse 2s infinite;
         }
         .station-list {
-            max-height: 400px;
+            max-height: 330px;
             overflow-y: auto;
         }
         /* Custom scrollbar */
@@ -25,37 +25,27 @@
         }
         .station-list::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            border-radius: 6px;
         }
         .station-list::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
+            border-radius: 6px;
         }
         .station-list::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 min-h-screen text-white">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-4xl mx-auto">
-            <!-- Header -->
-            <header class="flex flex-col items-center mb-8">
-                <div class="flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-md rounded-full mb-4">
-                    <i class="fas fa-radio text-3xl text-pink-400"></i>
-                </div>
-                <h1 class="text-4xl font-bold text-center mb-2 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">
-                    Merkezefendi Radyo
-                </h1>
-                <p class="text-white/70">Çalınabilen Radyo Listeleri</p>
-            </header>
+<body class="bg-gradient-to-br from-indigo-400 via-purple-700 to-pink-800 min-h-screen text-white">
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div class="max-w-4xl mx-auto px-2 sm:px-0">
 
             <!-- Main Player -->
-            <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8 shadow-lg transition-all duration-300 hover:shadow-xl">
-                <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 shadow-lg transition-all duration-300 hover:shadow-xl">
+                <div class="flex flex-col md:flex-row items-center gap-4 sm:gap-6">
                     <!-- Cover Art -->
-                    <div class="w-32 h-32 md:w-40 md:h-40 rounded-lg bg-purple-900/30 flex items-center justify-center radio-playing">
-                        <i class="fas fa-music text-4xl md:text-5xl text-pink-400"></i>
+                    <div class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-lg bg-purple-900/30 flex items-center justify-center radio-playing">
+                        <i class="fas fa-music text-3xl sm:text-4xl md:text-5xl text-pink-400"></i>
                     </div>
                     
                     <!-- Player Controls -->
@@ -77,12 +67,16 @@
                             </button>
                         </div>
                         
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-white/60">00:00</span>
-                            <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                <div class="h-full bg-pink-500 rounded-full" style="width: 30%"></div>
+                        <div class="flex items-center gap-3 mt-4">
+                            <button id="volume-down" class="text-white/70 hover:text-white">
+                                <i class="fas fa-volume-down"></i>
+                            </button>
+                            <div id="volume-track" class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer">
+                                <div id="volume-level" class="h-full bg-pink-400 w-full"></div>
                             </div>
-                            <span class="text-xs text-white/60">--:--</span>
+                            <button id="volume-up" class="text-white/70 hover:text-white">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -94,8 +88,8 @@
                     <h3 class="text-xl font-semibold">Tüm Radyolar</h3>
                     <div class="relative">
                         <input type="text" id="search-station" placeholder="İstasyon Ara" 
-                               class="bg-white/10 border border-white/20 rounded-full px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
-                        <i class="fas fa-search absolute right-3 top-2.5 text-white/50"></i>
+                               class="bg-white/0 border border-white/70 rounded-full px-3 py-1 sm:px-4 sm:py-2 pr-8 sm:pr-10 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+                        <i class="fas fa-search absolute right-3 top-2.5 text-white/70"></i>
                     </div>
                 </div>
                 
@@ -105,7 +99,7 @@
                             <div class="animate-spin text-pink-400 mb-2">
                                 <i class="fas fa-circle-notch text-3xl"></i>
                             </div>
-                            <p>Loading stations...</p>
+                            <p>İstasyon Yükleniyor...</p>
                         </div>
                     </div>
                 </div>
@@ -124,6 +118,7 @@
             const stationsContainer = document.getElementById('stations-container');
             
             let audio = new Audio();
+            audio.volume = 0.7; // Default volume
             let stations = [];
             let currentStationIndex = -1;
             let isPlaying = false;
@@ -168,8 +163,39 @@
                     playNextStation();
                 } else if (e.code === 'ArrowLeft') {
                     playPrevStation();
+                } else if (e.code === 'ArrowUp') {
+                    e.preventDefault();
+                    changeVolume(0.1);
+                } else if (e.code === 'ArrowDown') {
+                    e.preventDefault();
+                    changeVolume(-0.1);
                 }
             });
+
+            // Volume controls
+            document.getElementById('volume-down').addEventListener('click', () => changeVolume(-0.1));
+            document.getElementById('volume-up').addEventListener('click', () => changeVolume(0.1));
+
+            function changeVolume(change) {
+                audio.volume = Math.min(1, Math.max(0, audio.volume + change));
+                updateVolumeUI();
+            }
+
+            function updateVolumeUI() {
+                document.getElementById('volume-level').style.width = `${audio.volume * 100}%`;
+            }
+
+            // Click-to-set volume for the volume track
+            document.getElementById('volume-track').addEventListener('click', function(e) {
+                const trackWidth = this.offsetWidth;
+                const clickPosition = e.offsetX;
+                const newVolume = clickPosition / trackWidth;
+                audio.volume = Math.max(0, Math.min(1, newVolume));
+                updateVolumeUI();
+            });
+
+            // Initialize volume display
+            document.getElementById('volume-level').style.width = `${audio.volume * 100}%`;
             
             function parseM3U(content) {
                 const lines = content.split('\n');
@@ -253,7 +279,7 @@
                         updatePlayerUI();
                     })
                     .catch(error => {
-                        console.error('Error playing station:', error);
+                        console.error('İstasyon hatası:', error);
                         nowPlayingDisplay.textContent = 'Radyo oynatılamadı...';
                     });
             }
