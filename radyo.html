@@ -37,8 +37,8 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-400 via-purple-700 to-pink-800 min-h-screen text-white">
-    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
-        <div class="max-w-md mx-auto px-2">
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6 flex justify-center">
+        <div class="max-w-md w-full px-2">
 
             <!-- Main Player -->
             <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 shadow-lg transition-all duration-300 hover:shadow-xl">
@@ -53,21 +53,21 @@
                         <h2 id="current-station" class="text-lg font-semibold mb-2 truncate">Radyo Seçin</h2>
                         <p id="now-playing" class="text-sm text-white/70 mb-4">Oynatılmıyor</p>
                         
-                        <div class="flex items-center justify-between mb-3">
-                            <button id="prev-btn" class="p-1 rounded-full bg-white/10 hover:bg-white/20 transition">
-                                <i class="fas fa-step-backward text-xs"></i>
+                        <div class="flex items-center gap-3 mb-3 justify-center">
+                            <button id="prev-btn" class="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition">
+                                <i class="fas fa-step-backward text-sm"></i>
                             </button>
                             
                             <button id="play-btn" class="p-2 rounded-full bg-pink-500 hover:bg-pink-600 transition transform hover:scale-105">
-                                <i class="fas fa-play text-sm"></i>
+                                <i class="fas fa-play text-base"></i>
                             </button>
                             
-                            <button id="next-btn" class="p-1 rounded-full bg-white/10 hover:bg-white/20 transition">
-                                <i class="fas fa-step-forward text-xs"></i>
+                            <button id="next-btn" class="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition">
+                                <i class="fas fa-step-forward text-sm"></i>
                             </button>
                         </div>
                         
-                        <div class="flex items-center gap-3 mt-4">
+                        <div class="flex items-center gap-3 mt-4 justify-center">
                             <button id="volume-down" class="text-white/70 hover:text-white">
                                 <i class="fas fa-volume-down"></i>
                             </button>
