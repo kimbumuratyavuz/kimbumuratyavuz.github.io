@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merkezefendi Radyo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .radio-playing {
+            animation: pulse 2s infinite;
+        }
+        .station-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        /* Custom scrollbar */
+        .station-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .station-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .station-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        .station-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <header class="flex flex-col items-center mb-8">
+                <div class="flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-md rounded-full mb-4">
+                    <i class="fas fa-radio text-3xl text-pink-400"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-center mb-2 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400">
+                    Merkezefendi Radyo
+                </h1>
+                <p class="text-white/70">Çalınabilen Radyo Listeleri</p>
+            </header>
+
+            <!-- Main Player -->
+            <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8 shadow-lg transition-all duration-300 hover:shadow-xl">
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <!-- Cover Art -->
+                    <div class="w-32 h-32 md:w-40 md:h-40 rounded-lg bg-purple-900/30 flex items-center justify-center radio-playing">
+                        <i class="fas fa-music text-4xl md:text-5xl text-pink-400"></i>
+                    </div>
+                    
+                    <!-- Player Controls -->
+                    <div class="flex-1 w-full">
+                        <h2 id="current-station" class="text-xl font-semibold mb-2 truncate">Radyo Seçin</h2>
+                        <p id="now-playing" class="text-sm text-white/70 mb-4">Oynatılmıyor</p>
+                        
+                        <div class="flex items-center justify-between mb-4">
+                            <button id="prev-btn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+                                <i class="fas fa-step-backward"></i>
+                            </button>
+                            
+                            <button id="play-btn" class="p-4 rounded-full bg-pink-500 hover:bg-pink-600 transition transform hover:scale-105">
+                                <i class="fas fa-play text-xl"></i>
+                            </button>
+                            
+                            <button id="next-btn" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-white/60">00:00</span>
+                            <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full bg-pink-500 rounded-full" style="width: 30%"></div>
+                            </div>
+                            <span class="text-xs text-white/60">--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Station List -->
+            <div class="bg-white/5 backdrop-blur-md rounded-xl p-4 shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">Tüm Radyolar</h3>
+                    <div class="relative">
+                        <input type="text" id="search-station" placeholder="İstasyon Ara" 
+                               class="bg-white/10 border border-white/20 rounded-full px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+                        <i class="fas fa-search absolute right-3 top-2.5 text-white/50"></i>
+                    </div>
+                </div>
+                
+                <div class="station-list">
+                    <div id="stations-container">
+                        <div class="text-center py-8">
+                            <div class="animate-spin text-pink-400 mb-2">
+                                <i class="fas fa-circle-notch text-3xl"></i>
+                            </div>
+                            <p>Loading stations...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const playBtn = document.getElementById('play-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const currentStationDisplay = document.getElementById('current-station');
+            const nowPlayingDisplay = document.getElementById('now-playing');
+            const searchInput = document.getElementById('search-station');
+            const stationsContainer = document.getElementById('stations-container');
+            
+            let audio = new Audio();
+            let stations = [];
+            let currentStationIndex = -1;
+            let isPlaying = false;
+            
+            // Parse the M3U file
+            fetch('https://raw.githubusercontent.com/kimbumuratyavuz/capcanli/refs/heads/main/radyo.m3u')
+                .then(response => response.text())
+                .then(data => {
+                    stations = parseM3U(data);
+                    renderStations(stations);
+                })
+                .catch(error => {
+                    console.error('Error loading stations:', error);
+                    stationsContainer.innerHTML = `
+                        <div class="text-center py-8 text-red-300">
+                            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+                            <p>Failed to load stations. Please try again later.</p>
+                        </div>
+                    `;
+                });
+            
+            // Play/pause functionality
+            playBtn.addEventListener('click', togglePlay);
+            prevBtn.addEventListener('click', playPrevStation);
+            nextBtn.addEventListener('click', playNextStation);
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filtered = stations.filter(station => 
+                    station.name.toLowerCase().includes(searchTerm)
+                );
+                renderStations(filtered);
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    togglePlay();
+                } else if (e.code === 'ArrowRight') {
+                    playNextStation();
+                } else if (e.code === 'ArrowLeft') {
+                    playPrevStation();
+                }
+            });
+            
+            function parseM3U(content) {
+                const lines = content.split('\n');
+                const stations = [];
+                let currentStation = {};
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    if (line.startsWith('#EXTINF:')) {
+                        // Extract station info
+                        const parts = line.substring(8).split(',');
+                        currentStation.duration = parts[0];
+                        currentStation.name = parts.slice(1).join(',');
+                        
+                        // Check if next line exists and is a URL
+                        if (i + 1 < lines.length && !lines[i+1].startsWith('#')) {
+                            currentStation.url = lines[i+1].trim();
+                            stations.push({...currentStation});
+                            i++;
+                        }
+                        currentStation = {};
+                    }
+                }
+                
+                return stations;
+            }
+            
+            function renderStations(stationList) {
+                stationsContainer.innerHTML = '';
+                
+                if (stationList.length === 0) {
+                    stationsContainer.innerHTML = `
+                        <div class="text-center py-8 text-white/60">
+                            <i class="fas fa-volume-mute text-2xl mb-2"></i>
+                            <p>No stations found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                stationList.forEach((station, index) => {
+                    const stationElement = document.createElement('div');
+                    stationElement.className = `flex items-center justify-between p-3 rounded-lg mb-2 cursor-pointer transition ${currentStationIndex === index ? 'bg-pink-500/30' : 'hover:bg-white/10'}`;
+                    stationElement.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-900/30 flex items-center justify-center">
+                                <i class="fas ${currentStationIndex === index && isPlaying ? 'fa-pause' : 'fa-play'} text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">${station.name || 'Unknown Station'}</h4>
+                                
+                            </div>
+                        </div>
+                        <button class="p-2 text-white/60 hover:text-white">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    `;
+                    
+                    stationElement.addEventListener('click', () => playStation(index));
+                    
+                    stationsContainer.appendChild(stationElement);
+                });
+            }
+            
+            function playStation(index) {
+                if (index < 0 || index >= stations.length) return;
+                
+                currentStationIndex = index;
+                const station = stations[currentStationIndex];
+                
+                // Update UI
+                currentStationDisplay.textContent = station.name;
+                nowPlayingDisplay.textContent = station.url ? 'Oynatılıyor...' : 'Bekleyin...';
+                
+                // Play the station
+                audio.src = station.url;
+                audio.play()
+                    .then(() => {
+                        isPlaying = true;
+                        updatePlayerUI();
+                    })
+                    .catch(error => {
+                        console.error('Error playing station:', error);
+                        nowPlayingDisplay.textContent = 'Radyo oynatılamadı...';
+                    });
+            }
+            
+            function togglePlay() {
+                if (currentStationIndex === -1 && stations.length > 0) {
+                    // If nothing is playing yet, start with first station
+                    playStation(0);
+                    return;
+                }
+                
+                if (isPlaying) {
+                    audio.pause();
+                    isPlaying = false;
+                } else {
+                    audio.play()
+                        .then(() => {
+                            isPlaying = true;
+                        })
+                        .catch(error => {
+                            console.error('Error resuming playback:', error);
+                            nowPlayingDisplay.textContent = 'Error resuming playback';
+                        });
+                }
+                
+                updatePlayerUI();
+            }
+            
+            function playNextStation() {
+                if (stations.length === 0) return;
+                
+                let nextIndex = currentStationIndex + 1;
+                if (nextIndex >= stations.length) {
+                    nextIndex = 0;
+                }
+                
+                playStation(nextIndex);
+            }
+            
+            function playPrevStation() {
+                if (stations.length === 0) return;
+                
+                let prevIndex = currentStationIndex - 1;
+                if (prevIndex < 0) {
+                    prevIndex = stations.length - 1;
+                }
+                
+                playStation(prevIndex);
+            }
+            
+            function updatePlayerUI() {
+                const playIcon = playBtn.querySelector('i');
+                playIcon.className = isPlaying ? 'fas fa-pause text-xl' : 'fas fa-play text-xl';
+                
+                // Update stations list to show currently playing station
+                renderStations(stations);
+                
+                // Update cover art animation
+                const coverArt = document.querySelector('.radio-playing');
+                if (isPlaying) {
+                    coverArt.style.animationPlayState = 'running';
+                } else {
+                    coverArt.style.animationPlayState = 'paused';
+                }
+            }
+            
+            // Handle audio events
+            audio.addEventListener('playing', () => {
+                nowPlayingDisplay.textContent = 'Çalıyor...';
+            });
+            
+            audio.addEventListener('error', () => {
+                nowPlayingDisplay.textContent = 'Oynatma hatası';
+                isPlaying = false;
+                updatePlayerUI();
+            });
+            
+            audio.addEventListener('ended', () => {
+                nowPlayingDisplay.textContent = 'Yayın sona erdi';
+                isPlaying = false;
+                updatePlayerUI();
+            });
+            
+            // Initial UI setup
+            updatePlayerUI();
+        });
+    </script>
+</body>
+</html>
