@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamilelik Takip Uygulaması</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c084fc;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a855f7;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .floating-btn {
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-purple-800 mb-2">
+                <i class="fas fa-baby-carriage text-purple-600 mr-2"></i>
+                Hamilelik Takip Uygulaması
+            </h1>
+            <p class="text-gray-600">Gebelik sürecinizi kolayca takip edin, verileriniz kaydedilsin</p>
+        
+        
+        </header>
+
+        <!-- Main Dashboard -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <!-- Pregnancy Info Section -->
+            <div class="p-6 md:p-8 bg-gradient-to-r from-purple-50 to-pink-50">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-semibold text-purple-900 mb-2">Gebelik Bilgileri</h2>
+                        <p class="text-gray-600">Son adet tarihini girerek otomatik hesaplamalar yapabilirsiniz</p>
+                    </div>
+                    <button id="editBtn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all flex items-center">
+                        <i class="fas fa-edit mr-2"></i> Bilgileri Düzenle
+                    </button>
+                </div>
+                
+                <div id="pregnancyInfoDisplay" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Pregnancy Week Info -->
+            <div id="weekInfo" class="p-6 border-b border-gray-200">
+                <!-- Filled by JavaScript -->
+            </div>
+            
+            <!-- Milestones Timeline -->
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-purple-900 mb-4 flex items-center">
+                    <i class="fas fa-calendar-check text-purple-600 mr-2"></i>
+                    Önemli Aşamalar
+                </h3>
+                <div class="relative">
+                    <!-- Timeline -->
+                    <div class="timeline-container h-2 bg-gray-200 rounded-full overflow-hidden relative">
+                        <div id="timelineProgress" class="h-full bg-purple-600 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <div id="milestones" class="mt-4 grid grid-cols-5 gap-2 text-xs">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes & Symptoms Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Notes Section -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-purple-900 mb-4 flex items-center">
+                        <i class="fas fa-book text-purple-600 mr-2"></i>
+                        Notlarım
+                    </h3>
+                    <div class="flex">
+                        <input id="newNote" type="text" placeholder="Yeni not ekle..." class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <button id="addNoteBtn" class="px-4 py-2 bg-purple-600 text-white rounded-r-lg hover:bg-purple-700 transition-all">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 max-h-64 overflow-y-auto custom-scrollbar">
+                    <ul id="notesList">
+                        <!-- Filled by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Symptoms Section -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-purple-900 mb-4 flex items-center">
+                        <i class="fas fa-heartbeat text-purple-600 mr-2"></i>
+                        Semptom Takibi
+                    </h3>
+                    <div class="flex">
+                        <select id="symptomType" class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="Mide bulantısı">Mide bulantısı</option>
+                            <option value="Baş ağrısı">Baş ağrısı</option>
+                            <option value="Yorgunluk">Yorgunluk</option>
+                            <option value="Sırt ağrısı">Sırt ağrısı</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                        <button id="addSymptomBtn" class="px-4 py-2 bg-purple-600 text-white rounded-r-lg hover:bg-purple-700 transition-all">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 max-h-64 overflow-y-auto custom-scrollbar">
+                    <div id="symptomsList">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weight Tracker -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-purple-900 mb-4 flex items-center">
+                    <i class="fas fa-weight text-purple-600 mr-2"></i>
+                    Kilo Takibi
+                </h3>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="weightInput" class="block text-sm font-medium text-gray-700 mb-1">Bugünkü Kilo (kg)</label>
+                        <div class="flex">
+                            <input id="weightInput" type="number" step="0.1" placeholder="Ör: 62.5" class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <button id="addWeightBtn" class="px-4 py-2 bg-purple-600 text-white rounded-r-lg hover:bg-purple-700 transition-all">
+                                Kaydet
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div id="weightProgress" class="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                            <h4 class="text-sm font-medium text-purple-800 mb-1">Hedef Kilo Artışı</h4>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div id="weightBar" class="bg-purple-600 h-4 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <p id="weightText" class="text-xs text-gray-600 mt-1">0kg / 0kg (0%)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4">
+                <div id="weightChart" class="h-64">
+                    <canvas id="weightCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment Reminders -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-purple-900 mb-4 flex items-center">
+                    <i class="fas fa-calendar-alt text-purple-600 mr-2"></i>
+                    Doktor Randevuları
+                </h3>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label for="appointmentDesc" class="block text-sm font-medium text-gray-700 mb-1">Randevu Açıklaması</label>
+                        <input id="appointmentDesc" type="text" placeholder="Ör: Ultrason kontrolü" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div class="flex-1">
+                        <label for="appointmentDate" class="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
+                        <input id="appointmentDate" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div class="flex items-end">
+                        <button id="addAppointmentBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all h-[42px]">
+                            Ekle
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 max-h-64 overflow-y-auto custom-scrollbar">
+                <div id="appointmentsList">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button id="saveAllBtn" class="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg floating-btn pulse-animation transition-all">
+            <i class="fas fa-save text-xl"></i>
+        </button>
+
+        <!-- Edit Modal -->
+        <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-6 w-full max-w-md">
+                <h3 class="text-xl font-semibold text-purple-900 mb-4">Gebelik Bilgilerini Düzenle</h3>
+                <div class="space-y-4">
+                    <div>
+                      
+                        <label for="motherName" class="block text-sm font-medium text-gray-700 mb-1">Anne Adı</label>
+                        <input id="motherName" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label for="lastPeriod" class="block text-sm font-medium text-gray-700 mb-1">Son Adet Tarihi</label>
+                        <input id="lastPeriod" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label for="dueDate" class="block text-sm font-medium text-gray-700 mb-1">Tahmini Doğum Tarihi (Otomatik hesaplanır)</label>
+                        <input id="dueDate" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" readonly>
+                    </div>
+                    <div>
+                        <label for="currentWeight" class="block text-sm font-medium text-gray-700 mb-1">Gebelik Öncesi Kilo (kg)</label>
+                        <input id="currentWeight" type="number" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label for="targetWeightGain" class="block text-sm font-medium text-gray-700 mb-1">Hedef Kilo Artışı (kg)</label>
+                        <select id="targetWeightGain" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="12.5">Düşük kilo (12.5kg)</option>
+                            <option value="15">Normal kilo (15kg)</option>
+                            <option value="18">Fazla kilo (18kg)</option>
+                            <option value="20">İkiz gebelik (20kg)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button id="cancelEditBtn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                        İptal
+                    </button>
+                    <button id="saveEditBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all">
+                        Kaydet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // DOM Elements
+        const editBtn = document.getElementById('editBtn');
+        const editModal = document.getElementById('editModal');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+        const lastPeriodInput = document.getElementById('lastPeriod');
+        const dueDateInput = document.getElementById('dueDate');
+        const currentWeightInput = document.getElementById('currentWeight');
+        const targetWeightGainSelect = document.getElementById('targetWeightGain');
+        const pregnancyInfoDisplay = document.getElementById('pregnancyInfoDisplay');
+        const weekInfo = document.getElementById('weekInfo');
+        const timelineProgress = document.getElementById('timelineProgress');
+        const milestones = document.getElementById('milestones');
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        const newNoteInput = document.getElementById('newNote');
+        const notesList = document.getElementById('notesList');
+        const addSymptomBtn = document.getElementById('addSymptomBtn');
+        const symptomTypeSelect = document.getElementById('symptomType');
+        const symptomsList = document.getElementById('symptomsList');
+        const addWeightBtn = document.getElementById('addWeightBtn');
+        const weightInput = document.getElementById('weightInput');
+        const weightBar = document.getElementById('weightBar');
+        const weightText = document.getElementById('weightText');
+        const addAppointmentBtn = document.getElementById('addAppointmentBtn');
+        const appointmentDescInput = document.getElementById('appointmentDesc');
+        const appointmentDateInput = document.getElementById('appointmentDate');
+        const appointmentsList = document.getElementById('appointmentsList');
+        const saveAllBtn = document.getElementById('saveAllBtn');
+
+        // Initialize data
+        let pregnancyData = {
+            lastPeriod: '',
+            dueDate: '',
+            prePregnancyWeight: 0,
+            targetWeightGain: 15,
+            weightRecords: [],
+            notes: [],
+            symptoms: [],
+            appointments: []
+        };
+
+        // Milestones data
+        const milestonesData = [
+            { week: 4, name: 'Kalp Atışı', icon: 'heartbeat' },
+            { week: 12, name: 'İlk Tarama', icon: 'microscope' },
+            { week: 20, name: 'Detaylı USG', icon: 'baby' },
+            { week: 24, name: 'Şeker Testi', icon: 'flask' },
+            { week: 36, name: 'Doğum Haz.', icon: 'hospital' }
+        ];
+
+        // Baby size comparison data by week (approximate)
+        const babySizes = [
+            { week: 4, size: "Haşhaş Tohumu", length: "0.2 cm", image: "https://cdn.pixabay.com/photo/2017/10/12/15/17/poppy-seeds-2845436_640.jpg" },
+            { week: 8, size: "Ahududu", length: "1.6 cm", image: "https://cdn.pixabay.com/photo/2018/02/16/19/16/raspberry-3157730_640.jpg" },
+            { week: 12, size: "Limon", length: "5 cm", image: "https://cdn.pixabay.com/photo/2017/02/05/12/31/lemons-2039830_640.jpg" },
+            { week: 16, size: "Avokado", length: "11.5 cm", image: "https://cdn.pixabay.com/photo/2016/07/18/18/16/avocado-1526595_640.jpg" },
+            { week: 20, size: "Muz", length: "16.5 cm", image: "https://cdn.pixabay.com/photo/2017/06/17/17/34/banana-2413361_640.jpg" },
+            { week: 24, size: "Mısır", length: "30 cm", image: "https://cdn.pixabay.com/photo/2013/04/02/02/41/corn-99374_640.jpg" },
+            { week: 28, size: "Patlıcan", length: "37.5 cm", image: "https://cdn.pixabay.com/photo/2016/03/05/19/02/aubergine-1238240_640.jpg" },
+            { week: 32, size: "Kabak", length: "42.5 cm", image: "https://cdn.pixabay.com/photo/2016/08/11/08/49/pumpkins-1585067_640.jpg" },
+            { week: 36, size: "Marul", length: "47.5 cm", image: "https://cdn.pixabay.com/photo/2016/03/05/19/02/salad-1238220_640.jpg" },
+            { week: 40, size: "Karpuz", length: "51 cm", image: "https://cdn.pixabay.com/photo/2013/09/05/20/59/watermelon-179180_640.jpg" }
+        ];
+
+        // Load data from localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('pregnancyData');
+            if (savedData) {
+                pregnancyData = JSON.parse(savedData);
+                updateUI();
+            } else {
+                // Show edit modal if no data exists
+                setTimeout(() => {
+                    editModal.classList.remove('hidden');
+                }, 500);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('pregnancyData', JSON.stringify(pregnancyData));
+            showToast('Veriler başarıyla kaydedildi!', 'success');
+        }
+
+        // Update the UI with current data
+        function updateUI() {
+            updatePregnancyInfo();
+            updateWeekInfo();
+            updateTimeline();
+            updateMilestones();
+            updateNotes();
+            updateSymptoms();
+            updateWeightTracker();
+            updateAppointments();
+        }
+
+        // Update pregnancy info display
+        function updatePregnancyInfo() {
+            if (!pregnancyData.lastPeriod) return;
+
+            const today = new Date();
+            const lastPeriod = new Date(pregnancyData.lastPeriod);
+            const dueDate = new Date(pregnancyData.dueDate);
+            const daysPassed = Math.floor((today - lastPeriod) / (1000 * 60 * 60 * 24));
+            const daysRemaining = Math.max(0, Math.floor((dueDate - today) / (1000 * 60 * 60 * 24)));
+            const weeksPassed = Math.floor(daysPassed / 7);
+            const daysInWeek = daysPassed % 7;
+
+            pregnancyInfoDisplay.innerHTML = `
+                <div class="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <p class="text-sm text-purple-600">Gebelik Haftası</p>
+                    <p class="text-2xl font-bold text-purple-800">${weeksPassed + 1}. hafta, ${daysInWeek}. gün</p>
+                </div>
+                <div class="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <p class="text-sm text-purple-600">Tahmini Doğum</p>
+                    <p class="text-2xl font-bold text-purple-800">${formatDate(dueDate)}</p>
+                </div>
+                <div class="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <p class="text-sm text-purple-600">Kalan Süre</p>
+                    <p class="text-2xl font-bold text-purple-800">${daysRemaining} gün</p>
+                </div>
+            `;
+        }
+
+        // Update week info with baby development
+        function updateWeekInfo() {
+            if (!pregnancyData.lastPeriod) return;
+
+            const today = new Date();
+            const lastPeriod = new Date(pregnancyData.lastPeriod);
+            const daysPassed = Math.floor((today - lastPeriod) / (1000 * 60 * 60 * 24));
+            const weeksPassed = Math.min(40, Math.floor(daysPassed / 7) + 1);
+            const trimester = weeksPassed <= 13 ? '1. Trimester' : weeksPassed <= 27 ? '2. Trimester' : '3. Trimester';
+
+            // Find baby size info
+            let babySizeInfo = babySizes.find(item => item.week === weeksPassed);
+            if (!babySizeInfo) {
+                // If exact week not found, find the closest
+                for (let i = babySizes.length - 1; i >= 0; i--) {
+                    if (babySizes[i].week <= weeksPassed) {
+                        babySizeInfo = babySizes[i];
+                        break;
+                    }
+                }
+            }
+
+            weekInfo.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex flex-col items-center">
+                        <div class="w-24 h-24 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mb-2">
+                            <i class="fas fa-baby text-4xl"></i>
+                            
+                        </div>
+                        
+                        ${babySizeInfo ? `<img src="${babySizeInfo.image}" alt="${babySizeInfo.size}" class="w-24 h-24 object-cover rounded-lg shadow">` : ''}
+                        ${pregnancyData.motherName ? `<p class="mt-2 text-purple-800 font-medium"> ${pregnancyData.motherName} Anne</p>` : ''}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-semibold text-purple-900 mb-2">${weeksPassed}. Hafta - ${trimester}</h3>
+                        <p class="text-gray-700">Bebeğiniz yaklaşık <strong>${babySizeInfo ? babySizeInfo.size : 'bilinmiyor'}</strong> büyüklüğünde (${babySizeInfo ? babySizeInfo.length : 'bilinmiyor'}).</p>
+                        <div class="mt-2 text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1 text-purple-500"></i> Bebeğiniz hızlı bir gelişim sürecinde!
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update timeline progress
+        function updateTimeline() {
+            if (!pregnancyData.lastPeriod || !pregnancyData.dueDate) return;
+
+            const today = new Date();
+            const lastPeriod = new Date(pregnancyData.lastPeriod);
+            const dueDate = new Date(pregnancyData.dueDate);
+            const totalDays = Math.floor((dueDate - lastPeriod) / (1000 * 60 * 60 * 24));
+            const daysPassed = Math.floor((today - lastPeriod) / (1000 * 60 * 60 * 24));
+            const percentage = Math.min(100, Math.max(0, Math.floor((daysPassed / totalDays) * 100)));
+
+            timelineProgress.style.width = `${percentage}%`;
+        }
+
+        // Update milestones
+        function updateMilestones() {
+            if (!pregnancyData.lastPeriod) return;
+
+            const today = new Date();
+            const lastPeriod = new Date(pregnancyData.lastPeriod);
+            const daysPassed = Math.floor((today - lastPeriod) / (1000 * 60 * 60 * 24));
+            const weeksPassed = Math.floor(daysPassed / 7) + 1;
+
+            milestones.innerHTML = milestonesData.map(milestone => {
+                const isCompleted = weeksPassed >= milestone.week;
+                const isCurrent = weeksPassed === milestone.week;
+                
+                return `
+                    <div class="text-center">
+                        <div class="mx-auto w-10 h-10 rounded-full flex items-center justify-center 
+                            ${isCompleted ? 'bg-purple-600 text-white' : (isCurrent ? 'bg-purple-200 text-purple-800' : 'bg-gray-100 text-gray-500')}
+                            mb-1 relative">
+                            <i class="fas fa-${milestone.icon}"></i>
+                            ${isCurrent ? '<div class="absolute top-0 right-0 w-3 h-3 bg-pink-500 rounded-full animate-ping"></div>' : ''}
+                        </div>
+                        <div class="text-xs font-medium ${isCompleted ? 'text-purple-800' : (isCurrent ? 'text-purple-600' : 'text-gray-500')}">
+                            ${milestone.name}
+                        </div>
+                        <div class="text-xs ${isCompleted ? 'text-purple-600' : (isCurrent ? 'text-purple-400' : 'text-gray-400')}">
+                            ${milestone.week}. hafta
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update notes list
+        function updateNotes() {
+            notesList.innerHTML = pregnancyData.notes.map((note, index) => `
+                <li class="flex items-center justify-between py-2 px-3 hover:bg-gray-50 rounded-lg group">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="note-${index}" class="mr-3 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                        <label for="note-${index}" class="text-gray-800">${note.text}</label>
+                    </div>
+                    <button data-index="${index}" class="delete-note opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </li>
+            `).join('') || '<p class="text-gray-500 text-center py-4">Henüz not eklemediniz</p>';
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-note').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.currentTarget.getAttribute('data-index');
+                    pregnancyData.notes.splice(index, 1);
+                    updateNotes();
+                    saveData();
+                });
+            });
+        }
+
+        // Update symptoms list
+        function updateSymptoms() {
+            symptomsList.innerHTML = pregnancyData.symptoms.map((symptom, index) => `
+                <div class="flex items-center justify-between py-3 px-4 border-b border-gray-100 last:border-0">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-${getSymptomIcon(symptom.type)} text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-800">${symptom.type}</h4>
+                            <p class="text-xs text-gray-500">${formatDate(symptom.date)}</p>
+                        </div>
+                    </div>
+                    <button data-index="${index}" class="delete-symptom text-gray-400 hover:text-red-500">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('') || '<p class="text-gray-500 text-center py-4">Henüz semptom eklemediniz</p>';
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-symptom').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.currentTarget.getAttribute('data-index');
+                    pregnancyData.symptoms.splice(index, 1);
+                    updateSymptoms();
+                    saveData();
+                });
+            });
+        }
+
+        // Update weight tracker
+        function updateWeightTracker() {
+            // Update progress bar
+            const currentWeight = pregnancyData.weightRecords.length > 0 ? 
+                pregnancyData.weightRecords[pregnancyData.weightRecords.length - 1].weight : 
+                pregnancyData.prePregnancyWeight;
+            const weightGain = currentWeight - pregnancyData.prePregnancyWeight;
+            const percentage = Math.min(100, Math.max(0, (weightGain / pregnancyData.targetWeightGain) * 100));
+
+            weightBar.style.width = `${percentage}%`;
+            weightText.textContent = `${weightGain.toFixed(1)}kg / ${pregnancyData.targetWeightGain}kg (${percentage.toFixed(0)}%)`;
+
+            // Update chart
+            updateWeightChart();
+        }
+
+        // Update appointments list
+        function updateAppointments() {
+            if (!pregnancyData.appointments || pregnancyData.appointments.length === 0) {
+                appointmentsList.innerHTML = '<p class="text-gray-500 text-center py-4">Henüz randevu eklemediniz</p>';
+                return;
+            }
+
+            // Sort appointments by date
+            const sortedAppointments = [...pregnancyData.appointments].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            appointmentsList.innerHTML = sortedAppointments.map((appointment, index) => {
+                const apptDate = new Date(appointment.date);
+                const isPast = apptDate < today;
+                
+                return `
+                    <div class="flex items-start py-3 px-4 border-b border-gray-100 last:border-0 ${isPast ? 'opacity-70' : ''}">
+                        <div class="w-10 h-10 rounded-full ${isPast ? 'bg-gray-200' : 'bg-purple-100'} flex items-center justify-center text-purple-600 mr-3 mt-1 flex-shrink-0">
+                            <i class="fas fa-calendar ${isPast ? 'text-gray-500' : ''}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-medium text-gray-800 truncate">${appointment.desc}</h4>
+                            <div class="flex items-center text-xs text-gray-500 mt-1">
+                                <i class="far fa-clock mr-1"></i>
+                                ${formatDate(apptDate)}
+                            </div>
+                            ${isPast ? '<div class="text-xs text-gray-400 mt-1"><i class="fas fa-check-circle mr-1"></i>Tamamlandı</div>' : ''}
+                        </div>
+                        <button data-index="${pregnancyData.appointments.findIndex(a => a.date === appointment.date && a.desc === appointment.desc)}" class="delete-appointment text-gray-400 hover:text-red-500 ml-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-appointment').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.currentTarget.getAttribute('data-index');
+                    pregnancyData.appointments.splice(index, 1);
+                    updateAppointments();
+                    saveData();
+                });
+            });
+        }
+
+        // Weight chart
+        let weightChart = null;
+        function updateWeightChart() {
+            const ctx = document.getElementById('weightCanvas').getContext('2d');
+            
+            // Prepare data for chart
+            const labels = pregnancyData.weightRecords.map(record => formatDate(record.date));
+            const data = pregnancyData.weightRecords.map(record => record.weight);
+            
+            // Add pre-pregnancy weight if available
+            if (pregnancyData.prePregnancyWeight > 0 && pregnancyData.weightRecords.length > 0) {
+                labels.unshift('Başlangıç');
+                data.unshift(pregnancyData.prePregnancyWeight);
+            }
+            
+            // Destroy previous chart if exists
+            if (weightChart) {
+                weightChart.destroy();
+            }
+            
+            // Create new chart
+            weightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Kilo (kg)',
+                        data: data,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper functions
+        function formatDate(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            return d.toLocaleDateString('tr-TR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        function getSymptomIcon(type) {
+            switch(type) {
+                case 'Mide bulantısı': return 'stomach';
+                case 'Baş ağrısı': return 'head-side-virus';
+                case 'Yorgunluk': return 'bed';
+                case 'Sırt ağrısı': return 'spine';
+                default: return 'heartbeat';
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Calculate due date (40 weeks from last period)
+        function calculateDueDate(lastPeriod) {
+            if (!lastPeriod) return '';
+            const date = new Date(lastPeriod);
+            date.setDate(date.getDate() + 7 * 40); // 40 weeks
+            return date.toISOString().split('T')[0];
+        }
+
+        // Event Listeners
+        editBtn.addEventListener('click', () => {
+            document.getElementById('motherName').value = pregnancyData.motherName || '';
+            lastPeriodInput.value = pregnancyData.lastPeriod;
+            dueDateInput.value = calculateDueDate(pregnancyData.lastPeriod);
+            currentWeightInput.value = pregnancyData.prePregnancyWeight || '';
+            targetWeightGainSelect.value = pregnancyData.targetWeightGain || 15;
+            
+            editModal.classList.remove('hidden');
+        });
+
+        cancelEditBtn.addEventListener('click', () => {
+            editModal.classList.add('hidden');
+        });
+
+        saveEditBtn.addEventListener('click', () => {
+            pregnancyData.motherName = document.getElementById('motherName').value;
+            pregnancyData.lastPeriod = lastPeriodInput.value;
+            pregnancyData.dueDate = calculateDueDate(lastPeriodInput.value);
+            pregnancyData.prePregnancyWeight = parseFloat(currentWeightInput.value) || 0;
+            pregnancyData.targetWeightGain = parseFloat(targetWeightGainSelect.value) || 15;
+            
+            editModal.classList.add('hidden');
+            updateUI();
+            saveData();
+        });
+
+        lastPeriodInput.addEventListener('change', () => {
+            const dueDate = calculateDueDate(lastPeriodInput.value);
+            dueDateInput.value = dueDate;
+        });
+
+        addNoteBtn.addEventListener('click', () => {
+            const text = newNoteInput.value.trim();
+            if (text) {
+                pregnancyData.notes.push({
+                    text: text,
+                    date: new Date().toISOString()
+                });
+                newNoteInput.value = '';
+                updateNotes();
+                saveData();
+            }
+        });
+
+        newNoteInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addNoteBtn.click();
+            }
+        });
+
+        addSymptomBtn.addEventListener('click', () => {
+            const type = symptomTypeSelect.value;
+            if (type) {
+                pregnancyData.symptoms.push({
+                    type: type,
+                    date: new Date().toISOString()
+                });
+                updateSymptoms();
+                saveData();
+            }
+        });
+
+        addWeightBtn.addEventListener('click', () => {
+            const weight = parseFloat(weightInput.value);
+            if (weight && !isNaN(weight)) {
+                pregnancyData.weightRecords.push({
+                    weight: weight,
+                    date: new Date().toISOString()
+                });
+                weightInput.value = '';
+                updateWeightTracker();
+                saveData();
+            }
+        });
+
+        weightInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addWeightBtn.click();
+            }
+        });
+
+        addAppointmentBtn.addEventListener('click', () => {
+            const desc = appointmentDescInput.value.trim();
+            const date = appointmentDateInput.value;
+            
+            if (desc && date) {
+                pregnancyData.appointments.push({
+                    desc: desc,
+                    date: date
+                });
+                appointmentDescInput.value = '';
+                appointmentDateInput.value = '';
+                updateAppointments();
+                saveData();
+            }
+        });
+
+        saveAllBtn.addEventListener('click', () => {
+            saveData();
+        });
+
+        // Initialize the app
+        loadData();
+
+        // Auto-save every 30 seconds
+        setInterval(saveData, 30000);
+    </script>
+</body>
+</html>
